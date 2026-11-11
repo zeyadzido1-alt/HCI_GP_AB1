@@ -1,31 +1,40 @@
-# HCI_GP_AB1
-LZSCC.241 Human-Computer Interaction Group Project — Lancaster University Leipzig
 # Quiet Care — Smart-Home Monitoring Simulator
 
 **Module:** LZSCC.241 — Human-Computer Interaction  
 **Project:** #5 — Quiet Care (Modified)  
 **University:** Lancaster University Leipzig  
-**Status:** Planning and initial research
+**Status:** Simulation prototype development
 
 ## Project Overview
 
-Quiet Care is a browser-based interactive simulator designed to investigate how carers identify and respond to safety risks involving older adults living alone.
+Quiet Care is a browser-based interactive smart-home simulation exploring how carers identify and respond to safety risks involving older adults living alone.
 
-The interface combines an animated four-room home simulation (approximately two-thirds of the screen) with a monitoring dashboard (approximately one-third). The dashboard displays daily activity updates, simulated sensor alerts and response options.
+Following positive lecturer feedback, our initial development will focus on the **animated home simulation**, with the monitoring dashboard planned for a later phase.
 
 ## Research Question
 
 How effectively can a smart-home system use severity-based alerts to help carers identify and respond to risks involving older adults living alone, while maintaining trust and minimizing intrusiveness?
 
-## Planned Features
+## Current Prototype — 16 November 2026
 
-- Animated home with bedroom, bathroom, kitchen and living room.
-- Scripted daily routine of an older resident.
-- Randomly selected safety incidents during each simulation.
-- Simulated sensors, including fall detection, smart locks and stove monitoring.
-- Severity-based notifications (gentle and immediate alerts).
-- Three response options: emergency services, caregiver or family member.
-- Daily activity summaries and automatic interaction logging.
+Our first prototype will focus on:
+
+- A four-room home: bedroom, bathroom, kitchen and living room.
+- An animated older resident moving between rooms.
+- A simulated daily routine, from waking up to going to sleep.
+- An initial household safety incident, if feasible.
+
+**Goal:** Demonstrate a working home simulation at the 16 November workshop.
+
+## Future Development
+
+After the initial prototype, we plan to introduce:
+
+- Randomized household safety incidents.
+- Simulated sensors for detecting incidents.
+- Severity-based alerts and notifications.
+- A monitoring dashboard with response options.
+- Interaction logging for user evaluation.
 
 ## Team
 
@@ -37,27 +46,26 @@ How effectively can a smart-home system use severity-based alerts to help carers
 | Maria | Implementation Co-Lead |
 | Patrick | Evaluation Lead |
 
-## Technology (Proposed)
+## Technology
 
-- HTML, CSS and JavaScript
-- Browser-based simulation and animation
-- Simulated sensor events
-- CSV export for evaluation results
+**Proposed:** HTML, CSS and JavaScript.
 
-## Evaluation (Planned)
+The simulation will run in a web browser without requiring physical sensors or additional hardware.
 
-We plan to evaluate response accuracy, response time, perceived alert appropriateness, trust and intrusiveness with at least five participants. The final study conditions and metrics are still being developed.
+## Evaluation
 
-## Documentation
+We plan to investigate response accuracy, response time, trust, alert appropriateness and perceived intrusiveness through user testing.
 
-- [Project Wiki](https://github.com/zeyadzido1-alt/HCI_GP_AB1/wiki)
-- [GitHub Issues](https://github.com/zeyadzido1-alt/HCI_GP_AB1/issues)
-- [Project Board](https://github.com/zeyadzido1-alt/HCI_GP_AB1/projects)
+The detailed evaluation methodology will be finalized during development.
+
+## Project Documentation
+
+- [Project Wiki](../../wiki)
+- [GitHub Issues](../../issues)
+- [Project Board](../../projects)
+
+The Wiki contains our project plan, team responsibilities and weekly contribution logs.
 
 ## AI Assistance Disclosure
 
-AI assistance may be used for planning, documentation and coding support. Any use will be disclosed in the final report, and team members are responsible for understanding and verifying their contributions.
-
-## Project Status
-
-The project is currently in the planning and research phase. The interactive prototype and evaluation results will be added as development progresses.
+AI tools may be used to support planning, documentation and implementation. Any AI assistance will be disclosed in the final report, and all team members remain responsible for understanding and verifying their contributions.
