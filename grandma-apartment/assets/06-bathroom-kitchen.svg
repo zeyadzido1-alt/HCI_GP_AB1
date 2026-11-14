@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1040" width="1300" height="1040">
+  <defs>
+    <linearGradient id="waterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#72D2E8" />
+      <stop offset="100%" stop-color="#48AED0" />
+    </linearGradient>
+  </defs>
+
+  <!-- 06-bathroom-kitchen.svg: ONLY furniture for bathroom and kitchen -->
+  <g id="bathroom-kitchen-furniture">
+  <g id="kitchen-wall-cabinets">
+    <!-- Kitchen Upper Wall Cabinets -->
+    <polygon points="1066,460 1102,478 1102,448 1066,430" fill="#3E63C9" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="1130,464 1102,478 1102,448 1130,434" fill="#2F4FA8" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="1094,416 1130,434 1102,448 1066,430" fill="#557CE6" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Bathroom Vanity Sink & Mirror Unit -->
+  <g id="bathroom-sink">
+      <polygon points="538,360 578,380 578,343.2 538,323.2" fill="#E4E0F0" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="626,356 578,380 578,343.2 626,319.2" fill="#C9C3DD" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="586,299.2 626,319.2 578,343.2 538,323.2" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="548" y1="337.8" x2="568" y2="347.8" stroke="#5C6BC0" stroke-width="2" stroke-linecap="round"/>
+      <polygon points="550.8,351.2 565.2,358.4 565.2,346.4 550.8,339.2" fill="#FFFFFF" stroke="#2A2547" stroke-width="1.2" stroke-linejoin="round"/>
+      <line x1="626" y1="352" x2="578" y2="376" stroke="#2A2547" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="626" y1="321.6" x2="578" y2="345.6" stroke="#2A2547" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="626" y1="330" x2="578" y2="354" stroke="#2A2547" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="608" y1="334.8" x2="596" y2="340.8" stroke="#2A2547" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="607.6" y1="335" x2="596.4" y2="340.6" stroke="#FFE082" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="602" y1="364" x2="602" y2="342" stroke="#2A2547" stroke-width="1.5" stroke-linecap="round"/>
+      <polygon points="622.8,351.2 604.4,360.4 604.4,343.2 622.8,334" fill="#B8B2CC" stroke="#2A2547" stroke-width="1.2" stroke-linejoin="round"/>
+      <polygon points="599.6,362.8 581.2,372 581.2,354.8 599.6,345.6" fill="#B8B2CC" stroke="#2A2547" stroke-width="1.2" stroke-linejoin="round"/>
+      <circle cx="606" cy="346.8" r="2.5" fill="#FFE082" stroke="#2A2547" stroke-width="1"/>
+      <circle cx="598" cy="350.8" r="2.5" fill="#FFE082" stroke="#2A2547" stroke-width="1"/>
+      <ellipse cx="582" cy="321.2" rx="18" ry="9" fill="#BFE3EE" stroke="#2A2547" stroke-width="2"/>
+      <ellipse cx="582" cy="320.2" rx="14" ry="7" fill="#A5D6E4" stroke="#2A2547" stroke-width="1.2"/>
+      <circle cx="582" cy="321.2" r="2.5" fill="#5C6BC0" stroke="#2A2547" stroke-width="1"/>
+      <line x1="568" y1="314.2" x2="568" y2="301" stroke="#5C6BC0" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="568" y1="301" x2="577.2" y2="308.4" stroke="#5C6BC0" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+
+  <!-- Soaking Bathtub with Water -->
+  <g id="bathtub">
+      <polygon points="650,372 786,440 786,402 650,334" fill="#E4E0F0" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="846,410 786,440 786,402 846,372" fill="#C9C3DD" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="710,304 846,372 786,402 650,334" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="714,319.2 826,375.2 782,397.2 670,341.2" fill="url(#waterGrad)" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="810" y1="382" x2="810" y2="364" stroke="#5C6BC0" stroke-width="3" stroke-linecap="round"/>
+      <line x1="810" y1="364" x2="798" y2="362" stroke="#5C6BC0" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+  <!-- Coral Plush Bath Mat -->
+  <g id="bath-mat">
+      <polygon points="650,400 730,440 678,466 598,426" fill="#E8909A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="650,412 706,440 678,454 622,426" fill="#E8909A" stroke="#D67580" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+
+  <!-- Laundry Washing Machine -->
+  <g id="washing-machine">
+      <polygon points="838,450 886,474 886,424 838,400" fill="#4FA8C4" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="934,450 886,474 886,424 934,400" fill="#398FA9" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="886,376 934,400 886,424 838,400" fill="#78C7DF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="862" cy="436" r="14" fill="#C2E9FB" stroke="#2A2547" stroke-width="2"/>
+      <circle cx="862" cy="436" r="8" fill="#56B4D3" stroke="#2A2547" stroke-width="1.5"/>
+    </g>
+
+  <!-- Double-Door Refrigerator -->
+  <g id="refrigerator">
+      <polygon points="886,474 934,498 934,402 886,378" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="982,474 934,498 934,402 982,378" fill="#E4E0F0" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="934,354 982,378 934,402 886,378" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="886" y1="414" x2="934" y2="438" stroke="#C9C3DD" stroke-width="2" stroke-linecap="round"/>
+      <line x1="926" y1="408" x2="926" y2="428" stroke="#5C6BC0" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="926" y1="440" x2="926" y2="460" stroke="#5C6BC0" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+
+  <!-- Kitchen Stove Range & Oven -->
+  <g id="oven">
+      <polygon points="942,494 990,518 990,474 942,450" fill="#3E63C9" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="1030,498 990,518 990,474 1030,454" fill="#2F4FA8" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="982,430 1030,454 990,474 942,450" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <ellipse cx="975" cy="449" rx="6" ry="3" fill="#2A2547"/>
+      <ellipse cx="997" cy="455" rx="6" ry="3" fill="#2A2547"/>
+      <ellipse cx="984" cy="458" rx="7" ry="3.5" fill="#2A2547"/>
+      <ellipse cx="988" cy="446" rx="5" ry="2.5" fill="#2A2547"/>
+      <circle cx="948" cy="457.8" r="2" fill="#ECEFF1" stroke="#2A2547" stroke-width="1"/>
+      <circle cx="960" cy="463.8" r="2" fill="#ECEFF1" stroke="#2A2547" stroke-width="1"/>
+      <circle cx="972" cy="469.8" r="2" fill="#ECEFF1" stroke="#2A2547" stroke-width="1"/>
+      <polygon points="946.8,490.4 985.2,509.6 985.2,480.4 946.8,461.2" fill="#1E2238" stroke="#2A2547" stroke-width="1.5" stroke-linejoin="round"/>
+      <polygon points="950.8,487.2 981.2,502.4 981.2,483.6 950.8,468.4" fill="#37474F" stroke="#2A2547" stroke-width="1.2" stroke-linejoin="round"/>
+      <line x1="952" y1="466.2" x2="980" y2="480.2" stroke="#ECEFF1" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+
+  <!-- Rear Kitchen Countertop & Cabinets -->
+  <g id="kitchen-counter-back">
+      <polygon points="990,518 1082,564 1082,520 990,474" fill="#3E63C9" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="1122,544 1082,564 1082,520 1122,500" fill="#2F4FA8" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="1030,454 1122,500 1082,520 990,474" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="1036" y1="537" x2="1036" y2="501" stroke="#2F4FA8" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+
+  <!-- Round Dining Table with Fruit Bowl -->
+  <g id="dining-table">
+      <polygon points="822,544 834,550 834,516 822,510" fill="#8D432E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="846,544 834,550 834,516 846,510" fill="#723321" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="834,504 846,510 834,516 822,510" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <ellipse cx="834" cy="514" rx="34" ry="17" fill="#C68A52" stroke="#2A2547" stroke-width="2"/>
+      <ellipse cx="834" cy="508" rx="34" ry="17" fill="#D9A066" stroke="#2A2547" stroke-width="2"/>
+      <ellipse cx="834" cy="504" rx="10" ry="5" fill="#FFFFFF" stroke="#2A2547" stroke-width="1.5"/>
+      <circle cx="831" cy="502" r="3.5" fill="#E53935" stroke="#2A2547" stroke-width="1"/>
+      <circle cx="837" cy="502" r="3.5" fill="#43A047" stroke="#2A2547" stroke-width="1"/>
+      <circle cx="834" cy="499" r="3.2" fill="#FDD835" stroke="#2A2547" stroke-width="1"/>
+    </g>
+
+  <!-- Dining Chair -->
+  <g id="dining-chair">
+      <polygon points="766,566 790,578 790,558 766,546" fill="#C68A52" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="814,566 790,578 790,558 814,546" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="790,534 814,546 790,558 766,546" fill="#D9A066" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="766,546 790,558 790,530 766,518" fill="#C68A52" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="798,554 790,558 790,530 798,526" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="774,514 798,526 790,530 766,518" fill="#D9A066" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+
+  <!-- Side Counter with Kitchen Sink & Tap -->
+  <g id="kitchen-counter-side">
+      <polygon points="834,640 874,660 874,616 834,596" fill="#3E63C9" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="1074,560 874,660 874,616 1074,516" fill="#2F4FA8" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="1034,496 1074,516 874,616 834,596" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="980,529 1008,543 968,563 940,549" fill="#CFD8DC" stroke="#2A2547" stroke-width="1.5" stroke-linejoin="round"/>
+      <line x1="992" y1="537" x2="992" y2="523" stroke="#5C6BC0" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="992" y1="523" x2="982" y2="532" stroke="#5C6BC0" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

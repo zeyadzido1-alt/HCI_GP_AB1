@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Grandma's Apartment — 2D Isometric Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen" role="status" aria-live="polite">
+    <div class="loading-card">
+      <div class="loading-badge">2D Isometric Apartment</div>
+      <h1 class="loading-title">Loading Apartment…</h1>
+      <div class="loading-bar-track">
+        <div id="loading-bar-fill" class="loading-bar-fill"></div>
+      </div>
+      <p id="loading-status" class="loading-status">Preparing SVG layers (0 / 13)</p>
+
+      <div id="loading-errors" class="loading-errors hidden">
+        <p class="loading-errors-heading">Some SVG files could not be loaded from <code>/assets/</code></p>
+        <p class="loading-errors-sub">
+          The game will run using coloured placeholder SVGs so everything works right away.
+          Add your SVG files to <code>/assets/</code> (or update <code>ASSET_FILES</code> at the top of <code>game.js</code>).
+        </p>
+        <ul id="loading-error-list" class="loading-error-list"></ul>
+        <button id="continue-placeholder-btn" class="continue-btn" type="button">
+          Play with Placeholders
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Viewport -->
+  <main id="viewport" class="viewport">
+    <div id="game-stage" class="game-stage">
+      <!-- Master 1300x1040 SVG assembled at runtime -->
+      <svg
+        id="master-svg"
+        class="master-svg time-day"
+        viewBox="0 0 1300 1040"
+        preserveAspectRatio="xMidYMid meet"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label="Grandma's Isometric Apartment"
+      ></svg>
+
+      <!-- Floating Sleep / Wake Pill Button -->
+      <button
+        id="floating-prompt"
+        class="floating-prompt hidden"
+        type="button"
+        aria-live="polite"
+      ></button>
+
+      <!-- Top-Left Sky / Time-of-Day HUD -->
+      <aside id="sky-hud" class="sky-hud" aria-label="Time of Day">
+        <div class="sky-hud-row">
+          <span id="sky-hud-icon" class="sky-hud-icon" aria-hidden="true">☀️</span>
+          <span id="sky-hud-label" class="sky-hud-label">Day</span>
+        </div>
+        <div class="sky-progress-track">
+          <div id="sky-progress-fill" class="sky-progress-fill"></div>
+        </div>
+      </aside>
+
+      <!-- Debug Status Readout (toggle with D key) -->
+      <div id="debug-hud" class="debug-hud hidden">
+        DEBUG MODE (D) · <span id="debug-coords">x: 2.00, y: 5.50</span>
+      </div>
+
+      <!-- Non-blocking Placeholder Notice -->
+      <div id="placeholder-toast" class="placeholder-toast hidden">
+        <span>Using placeholder SVGs for missing assets</span>
+        <button id="dismiss-toast-btn" type="button" aria-label="Dismiss notice">×</button>
+      </div>
+    </div>
+
+    <!-- Touch Controls (shown automatically on touch devices) -->
+    <div id="touch-controls" class="touch-controls" aria-label="Touch Controls">
+      <div class="dpad" role="group" aria-label="Movement D-pad">
+        <button class="dpad-btn dpad-up" data-dir="up" type="button" aria-label="Move Up">▲</button>
+        <button class="dpad-btn dpad-left" data-dir="left" type="button" aria-label="Move Left">◀</button>
+        <button class="dpad-btn dpad-right" data-dir="right" type="button" aria-label="Move Right">▶</button>
+        <button class="dpad-btn dpad-down" data-dir="down" type="button" aria-label="Move Down">▼</button>
+      </div>
+
+      <button
+        id="touch-action-btn"
+        class="touch-action-btn"
+        type="button"
+        disabled
+      >
+        Sleep
+      </button>
+    </div>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>

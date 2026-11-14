@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1040" width="1300" height="1040">
+  <!-- 08-bedroom-balcony.svg: ONLY furniture for bedroom and balcony from full apartment -->
+  <g id="bedroom-balcony-furniture">
+  <!-- Terracotta & Rust Bedroom Area Rug -->
+  <g id="bedroom-rug">
+      <polygon points="682,588 826,660 706,720 562,648" fill="#E89B5A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="682,596 810,660 706,712 578,648" fill="#E89B5A" stroke="#C8553D" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+
+  <!-- Outdoor Teal Bistro Table & Terrace Stool -->
+  <g id="bistro-set">
+      <ellipse cx="190" cy="610" rx="10" ry="5" fill="#2A2547"/>
+      <line x1="190" y1="610" x2="190" y2="578" stroke="#2A2547" stroke-width="2.5" stroke-linecap="round"/>
+      <ellipse cx="190" cy="581" rx="18" ry="9" fill="#2E6E77" stroke="#2A2547" stroke-width="2"/>
+      <ellipse cx="190" cy="578" rx="18" ry="9" fill="#3E8E9A" stroke="#2A2547" stroke-width="2"/>
+      <polygon points="204,643 226,654 226,636 204,625" fill="#3E8E9A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="248,643 226,654 226,636 248,625" fill="#2E6E77" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="226,614 248,625 226,636 204,625" fill="#4FA8B4" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="206,624 228,635 228,613 206,602" fill="#3E8E9A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="234,632 228,635 228,613 234,610" fill="#2E6E77" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="212,599 234,610 228,613 206,602" fill="#4FA8B4" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+
+  <!-- Platform Queen Bed with Pink Duvet & Pillows -->
+  <g id="bed">
+      <polygon points="702,602 798,650 798,604 702,556" fill="#C68A52" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="810,644 798,650 798,604 810,598" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="714,550 810,598 798,604 702,556" fill="#D9A066" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="614,646 710,694 710,668 614,620" fill="#E4E0F0" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="798,650 710,694 710,668 798,624" fill="#C9C3DD" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="702,576 798,624 710,668 614,620" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="680,595 716,613 716,606.6 680,588.6" fill="#E4E0F0" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="738,602 716,613 716,606.6 738,595.6" fill="#C9C3DD" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="702,577.6 738,595.6 716,606.6 680,588.6" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="724,617 760,635 760,628.6 724,610.6" fill="#E4E0F0" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="782,624 760,635 760,628.6 782,617.6" fill="#C9C3DD" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="746,599.6 782,617.6 760,628.6 724,610.6" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="658,598 754,646 754,642.8 658,594.8" fill="#E4E0F0" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="768,639 754,646 754,642.8 768,635.8" fill="#C9C3DD" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="672,587.8 768,635.8 754,642.8 658,594.8" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="614,620 710,668 710,662.4 614,614.4" fill="#E8909A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="754,646 710,668 710,662.4 754,640.4" fill="#C9737D" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="658,592.4 754,640.4 710,662.4 614,614.4" fill="#F0AAB2" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+
+  <!-- Row of 5 Balcony Terrace Potted Plants -->
+  <g id="balcony-plants">
+      <g class="potted-plant"><polygon points="91,604 106,611.5 106,595.2 91,587.7" fill="#C9673E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="121,604 106,611.5 106,595.2 121,587.7" fill="#A84C27" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="106,580.2 121,587.7 106,595.2 91,587.7" fill="#DB7848" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><circle cx="106" cy="580.9000000000001" r="13.6" fill="#5FAF5A" stroke="#2A2547" stroke-width="2"/><circle cx="96.65" cy="587.7" r="10.88" fill="#4E994A" stroke="#2A2547" stroke-width="2"/><circle cx="115.35" cy="589.4000000000001" r="11.152" fill="#6EBE68" stroke="#2A2547" stroke-width="2"/><circle cx="103.45" cy="574.1" r="10.2" fill="#7ECE77" stroke="#2A2547" stroke-width="2"/></g>
+      <g class="potted-plant"><polygon points="130.2,624 146,631.9 146,614.6 130.2,606.7" fill="#C9673E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="161.8,624 146,631.9 146,614.6 161.8,606.7" fill="#A84C27" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="146,598.8 161.8,606.7 146,614.6 130.2,606.7" fill="#DB7848" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><circle cx="146" cy="599.5" r="14.4" fill="#5FAF5A" stroke="#2A2547" stroke-width="2"/><circle cx="136.1" cy="606.7" r="11.520000000000001" fill="#4E994A" stroke="#2A2547" stroke-width="2"/><circle cx="155.9" cy="608.5" r="11.808" fill="#6EBE68" stroke="#2A2547" stroke-width="2"/><circle cx="143.3" cy="592.3000000000001" r="10.8" fill="#7ECE77" stroke="#2A2547" stroke-width="2"/></g>
+      <g class="potted-plant"><polygon points="171,644 186,651.5 186,635.2 171,627.7" fill="#C9673E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="201,644 186,651.5 186,635.2 201,627.7" fill="#A84C27" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="186,620.2 201,627.7 186,635.2 171,627.7" fill="#DB7848" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><circle cx="186" cy="620.9000000000001" r="13.6" fill="#5FAF5A" stroke="#2A2547" stroke-width="2"/><circle cx="176.65" cy="627.7" r="10.88" fill="#4E994A" stroke="#2A2547" stroke-width="2"/><circle cx="195.35" cy="629.4000000000001" r="11.152" fill="#6EBE68" stroke="#2A2547" stroke-width="2"/><circle cx="183.45" cy="614.1" r="10.2" fill="#7ECE77" stroke="#2A2547" stroke-width="2"/></g>
+      <g class="potted-plant"><polygon points="225.3,672 242,680.4 242,662.1 225.3,653.8" fill="#C9673E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="258.7,672 242,680.4 242,662.1 258.7,653.8" fill="#A84C27" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="242,645.4 258.7,653.8 242,662.1 225.3,653.8" fill="#DB7848" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><circle cx="242" cy="646.1999999999999" r="15.2" fill="#5FAF5A" stroke="#2A2547" stroke-width="2"/><circle cx="231.55" cy="653.8" r="12.16" fill="#4E994A" stroke="#2A2547" stroke-width="2"/><circle cx="252.45" cy="655.6999999999999" r="12.463999999999999" fill="#6EBE68" stroke="#2A2547" stroke-width="2"/><circle cx="239.15" cy="638.5999999999999" r="11.399999999999999" fill="#7ECE77" stroke="#2A2547" stroke-width="2"/></g>
+      <g class="potted-plant"><polygon points="266.2,692 282,699.9 282,682.6 266.2,674.7" fill="#C9673E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="297.8,692 282,699.9 282,682.6 297.8,674.7" fill="#A84C27" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="282,666.8 297.8,674.7 282,682.6 266.2,674.7" fill="#DB7848" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><circle cx="282" cy="667.5" r="14.4" fill="#5FAF5A" stroke="#2A2547" stroke-width="2"/><circle cx="272.1" cy="674.7" r="11.520000000000001" fill="#4E994A" stroke="#2A2547" stroke-width="2"/><circle cx="291.9" cy="676.5" r="11.808" fill="#6EBE68" stroke="#2A2547" stroke-width="2"/><circle cx="279.3" cy="660.3000000000001" r="10.8" fill="#7ECE77" stroke="#2A2547" stroke-width="2"/></g>
+    </g>
+
+  <!-- Tall Cedar Double Wardrobe Closet -->
+  <g id="wardrobe">
+      <polygon points="766,670 814,694 814,606 766,582" fill="#C68A52" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="862,670 814,694 814,606 862,582" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="814,558 862,582 814,606 766,582" fill="#D9A066" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="790" y1="678" x2="790" y2="598" stroke="#8D432E" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="784" cy="633" r="2" fill="#FFE082" stroke="#2A2547" stroke-width="1"/>
+      <circle cx="796" cy="639" r="2" fill="#FFE082" stroke="#2A2547" stroke-width="1"/>
+    </g>
+
+</svg>

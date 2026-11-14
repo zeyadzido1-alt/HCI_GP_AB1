@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1040" width="1300" height="1040">
+  <!-- 07-living-hallway.svg: ONLY furniture for the hallway and living room from full apartment -->
+  <g id="living-hallway-furniture">
+  <!-- Entrance Coir Doormat (Hallway) -->
+  <g id="doormat">
+      <polygon points="482,416 522,436 482,456 442,436" fill="#8D6E63" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="482,424 506,436 482,448 458,436" fill="#A1887F" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+
+  <!-- Tripod Arc Floor Lamp with Amber Glow (Living Room) -->
+  <g id="floor-lamp">
+      <ellipse cx="398" cy="446" rx="8" ry="4" fill="#2A2547"/>
+      <line x1="398" y1="446" x2="398" y2="358" stroke="#2A2547" stroke-width="2.5" stroke-linecap="round"/>
+      <ellipse cx="398" cy="364" rx="15" ry="7.5" fill="#FFE082" stroke="#2A2547" stroke-width="2"/>
+      <ellipse cx="398" cy="354" rx="12" ry="6" fill="#FFF9C4" stroke="#2A2547" stroke-width="2"/>
+    </g>
+
+  <!-- Potted Foliage Plant (Hallway) -->
+  <g id="hallway-plant"><g class="potted-plant"><polygon points="571.9,460 586,467 586,451.7 571.9,444.6" fill="#C9673E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="600.1,460 586,467 586,451.7 600.1,444.6" fill="#A84C27" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="586,437.6 600.1,444.6 586,451.7 571.9,444.6" fill="#DB7848" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><circle cx="586" cy="438.20000000000005" r="12.8" fill="#5FAF5A" stroke="#2A2547" stroke-width="2"/><circle cx="577.2" cy="444.6" r="10.240000000000002" fill="#4E994A" stroke="#2A2547" stroke-width="2"/><circle cx="594.8" cy="446.20000000000005" r="10.496" fill="#6EBE68" stroke="#2A2547" stroke-width="2"/><circle cx="583.6" cy="431.8" r="9.600000000000001" fill="#7ECE77" stroke="#2A2547" stroke-width="2"/></g></g>
+
+  <!-- Terracotta Geometric Woven Rug (Living Room) -->
+  <g id="living-room-rug">
+      <polygon points="370,496 530,576 410,636 250,556" fill="#C8553D" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="374,510 502,574 406,622 278,558" fill="#E89B5A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="374,518 486,574 406,614 294,558" fill="#E89B5A" stroke="#FBE9E7" stroke-width="1.5" stroke-linejoin="round"/>
+    </g>
+
+  <!-- L-Shaped Sectional Sofa (Living Room) -->
+  <g id="sofa">
+      <polygon points="386,442 570,534 570,508 386,416" fill="#3E8E9A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="586,526 570,534 570,508 586,500" fill="#2E6E77" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="402,408 586,500 570,508 386,416" fill="#5BB7C3" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="266,502 282,510 282,493.2 266,485.2" fill="#3E8E9A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="402,450 282,510 282,493.2 402,433.2" fill="#2E6E77" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="386,425.2 402,433.2 282,493.2 266,485.2" fill="#5BB7C3" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="514,546 530,554 530,537.2 514,529.2" fill="#3E8E9A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="570,534 530,554 530,537.2 570,517.2" fill="#2E6E77" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="554,509.2 570,517.2 530,537.2 514,529.2" fill="#5BB7C3" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="282,532 322,552 322,530 282,510" fill="#3E8E9A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="442,492 322,552 322,530 442,470" fill="#2E6E77" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="402,450 442,470 322,530 282,510" fill="#4FA8B4" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="402,512 514,568 514,546 402,490" fill="#3E8E9A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="554,548 514,568 514,546 554,526" fill="#2E6E77" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="442,470 554,526 514,546 402,490" fill="#4FA8B4" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="442" y1="469.6" x2="402" y2="489.6" stroke="#2E6E77" stroke-width="2" stroke-linecap="round"/>
+      <line x1="498" y1="497.6" x2="458" y2="517.6" stroke="#2E6E77" stroke-width="2" stroke-linecap="round"/>
+      <line x1="342" y1="479.6" x2="382" y2="499.6" stroke="#2E6E77" stroke-width="2" stroke-linecap="round"/>
+    </g>
+
+  <!-- Mid-Century Coffee Table with Pink Book (Living Room) -->
+  <g id="coffee-table">
+      <polygon points="382,538 390,542 390,528 382,524" fill="#8D432E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="398,538 390,542 390,528 398,524" fill="#723321" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="390,520 398,524 390,528 382,524" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="446,570 454,574 454,560 446,556" fill="#8D432E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="462,570 454,574 454,560 462,556" fill="#723321" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="454,552 462,556 454,560 446,556" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="342,558 350,562 350,548 342,544" fill="#8D432E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="358,558 350,562 350,548 358,544" fill="#723321" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="350,540 358,544 350,548 342,544" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="406,590 414,594 414,580 406,576" fill="#8D432E" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="422,590 414,594 414,580 422,576" fill="#723321" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="414,572 422,576 414,580 406,576" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="334,544 414,584 414,578 334,538" fill="#C68A52" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="470,556 414,584 414,578 470,550" fill="#A5523A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="390,510 470,550 414,578 334,538" fill="#D9A066" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="382,542 406,554 406,552 382,540" fill="#E8909A" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="422,546 406,554 406,552 422,544" fill="#C2185B" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/><polygon points="398,532 422,544 406,552 382,540" fill="#F48FB1" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 140" width="220" height="140">
+  <!-- 10-grandma-standing.svg: napping chibi grandma sprite aligned to 1:2 isometric slope -->
+
+  <g id="shadow">
+    <ellipse cx="108" cy="96" rx="46" ry="12" transform="rotate(26.565 108 96)" fill="#2A2547" opacity="0.15"/>
+  </g>
+
+  <g id="cushion">
+    <!-- Puffy rounded pillow under her head and bun -->
+    <path d="M 42 34 C 54 31, 67 36, 73 45 C 77 55, 69 72, 55 78 C 42 82, 27 76, 23 65 C 19 54, 29 37, 42 34 Z" fill="#FCE9B8" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Soft lower-right pillow shading -->
+    <path d="M 71 46 C 74 55, 67 70, 54 76 C 43 80, 30 75, 25 66 C 34 73, 47 74, 57 68 C 66 63, 71 53, 71 46 Z" fill="#E8CA88"/>
+    <!-- Upper-left plush highlight -->
+    <path d="M 28 56 C 28 47, 35 39, 44 37" fill="none" stroke="#FFF8E3" stroke-width="2" stroke-linecap="round"/>
+    <!-- Gentle fabric dimples where head & bun press in -->
+    <path d="M 36 62 Q 41 65, 46 64" fill="none" stroke="#D4B06A" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M 55 43 Q 60 45, 63 48" fill="none" stroke="#D4B06A" stroke-width="1.4" stroke-linecap="round"/>
+  </g>
+
+  <g id="slippers">
+    <!-- Back/upper dark purple slipper (#3E2E6A) -->
+    <g transform="rotate(14 166 96)">
+      <ellipse cx="166" cy="96" rx="7.5" ry="5.2" fill="#3E2E6A" stroke="#2A2547" stroke-width="2"/>
+      <path d="M 161 93 Q 165 92, 169 94" fill="none" stroke="#5E4896" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M 160 93 C 158.5 95, 158.5 98, 160.5 99.5" fill="none" stroke="#5E4896" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+    <!-- Front/lower dark purple slipper (#3E2E6A) -->
+    <g transform="rotate(20 160 105)">
+      <ellipse cx="160" cy="105" rx="8" ry="5.5" fill="#3E2E6A" stroke="#2A2547" stroke-width="2"/>
+      <path d="M 155 102 Q 159 101, 164 103" fill="none" stroke="#5E4896" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M 153.5 102.5 C 152 104.5, 152.2 107.5, 154.5 109" fill="none" stroke="#5E4896" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g id="outfit">
+    <!-- Long purple polka-dot dress (#6E4BB5) with raised knees in relaxed napping pose -->
+    <path d="M 76 54 C 90 58, 102 64, 113 68 C 122 65, 130 65, 137 71 C 145 78, 152 86, 159 93 C 158 99, 154 104, 149 107 C 132 103, 113 96, 94 88 C 82 83, 72 78, 69 72 C 68 65, 71 58, 76 54 Z" fill="#6E4BB5" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+
+    <!-- Dress lower-edge shading for soft volume -->
+    <path d="M 73 73 C 88 83, 115 95, 148 105 C 134 101, 113 94, 96 87 C 84 82, 76 77, 73 73 Z" fill="#573896"/>
+
+    <!-- Dress hem trim -->
+    <path d="M 156 93 C 155 98, 152 102, 148 105" fill="none" stroke="#8C6AD1" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Gentle folds around raised knees & skirt -->
+    <path d="M 131 69 C 129 76, 125 82, 120 86" fill="none" stroke="#533391" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M 140 76 C 139 82, 135 88, 130 92" fill="none" stroke="#533391" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M 121 68 C 127 66, 132 67, 136 71" fill="none" stroke="#8564CC" stroke-width="1.4" stroke-linecap="round"/>
+
+    <!-- White polka dots on the dress -->
+    <circle cx="111" cy="74" r="2.2" fill="#FFFFFF"/>
+    <circle cx="119" cy="81" r="2.2" fill="#FFFFFF"/>
+    <circle cx="111" cy="87" r="2.2" fill="#FFFFFF"/>
+    <circle cx="128" cy="74" r="2.2" fill="#FFFFFF"/>
+    <circle cx="125" cy="88" r="2.2" fill="#FFFFFF"/>
+    <circle cx="137" cy="84" r="2.2" fill="#FFFFFF"/>
+    <circle cx="134" cy="96" r="2.2" fill="#FFFFFF"/>
+    <circle cx="147" cy="90" r="2.2" fill="#FFFFFF"/>
+    <circle cx="145" cy="99" r="2.2" fill="#FFFFFF"/>
+
+    <!-- White blouse collar & gold brooch peeking under cardigan -->
+    <path d="M 74 58 Q 81 62, 82 67 Q 76 69, 71 67 Z" fill="#FFFFFF" stroke="#2A2547" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="80" cy="65" r="2" fill="#FFE082" stroke="#2A2547" stroke-width="0.9"/>
+
+    <!-- Soft rounded lavender cardigan (#8B6FC9) over upper torso -->
+    <!-- Upper/back cardigan panel -->
+    <path d="M 75 53 C 86 54, 98 58, 105 64 C 103 69, 98 73, 93 73 C 88 68, 82 62, 75 57 Z" fill="#8B6FC9" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Lower/front cardigan panel -->
+    <path d="M 70 67 C 79 69, 86 73, 92 78 C 94 83, 92 87, 88 88 C 79 84, 72 79, 68 73 C 68 70, 69 68, 70 67 Z" fill="#8B6FC9" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Gentle cardigan folds & highlights -->
+    <path d="M 80 56 C 88 58, 95 61, 100 65" fill="none" stroke="#A68DE0" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M 83 74 C 86 77, 89 80, 90 83" fill="none" stroke="#7255B3" stroke-width="1.4" stroke-linecap="round"/>
+  </g>
+
+  <g id="hand-side">
+    <!-- Thick rounded cartoon sleeve resting peacefully by her side (no sharp elbow angles) -->
+    <path d="M 71 71 C 69 79, 76 88, 93 92 C 97 92, 100 88, 98 84 C 87 81, 82 76, 80 69 C 77 67, 73 68, 71 71 Z" fill="#8B6FC9" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M 75 76 C 78 82, 84 85, 93 87" fill="none" stroke="#7255B3" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M 96 84 C 94 86, 94 89, 95 91" fill="none" stroke="#2A2547" stroke-width="1.4" stroke-linecap="round"/>
+    <!-- Cute rounded hand resting by her side -->
+    <ellipse cx="101.5" cy="89" rx="4.5" ry="3.6" transform="rotate(14 101.5 89)" fill="#FFCCBC" stroke="#2A2547" stroke-width="1.8"/>
+    <path d="M 99.5 87.2 Q 102 86.5, 103.5 88" fill="none" stroke="#E89E8B" stroke-width="1" stroke-linecap="round"/>
+  </g>
+
+  <g id="hand-tummy">
+    <!-- Thick rounded cartoon sleeve curving smoothly onto her tummy (no sharp elbow angles) -->
+    <path d="M 82 54 C 91 54, 100 60, 103 69 C 103 73, 98 75, 94 73 C 91 66, 86 62, 80 61 C 78 58, 79 55, 82 54 Z" fill="#8B6FC9" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M 85 57 C 91 58, 96 62, 98 68" fill="none" stroke="#A68DE0" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="M 95 72 C 97 70, 100 69, 102 70" fill="none" stroke="#2A2547" stroke-width="1.4" stroke-linecap="round"/>
+    <!-- Cute rounded hand resting on her tummy -->
+    <ellipse cx="101" cy="74.5" rx="4.4" ry="3.6" transform="rotate(30 101 74.5)" fill="#FFCCBC" stroke="#2A2547" stroke-width="1.8"/>
+    <path d="M 99.5 73 Q 102 72.8, 103 74.5" fill="none" stroke="#E89E8B" stroke-width="1" stroke-linecap="round"/>
+  </g>
+
+  <g id="head">
+    <!-- Upper/far ear peek -->
+    <ellipse cx="72.5" cy="41.5" rx="2.8" ry="3.5" transform="rotate(-58 72.5 41.5)" fill="#FFCCBC" stroke="#2A2547" stroke-width="1.6"/>
+    <!-- Main chibi head -->
+    <ellipse cx="64" cy="55" rx="17.5" ry="16" transform="rotate(-58 64 55)" fill="#FFCCBC" stroke="#2A2547" stroke-width="2"/>
+    <!-- Lower/near ear & pearl earring -->
+    <ellipse cx="55.5" cy="69" rx="3" ry="3.8" transform="rotate(-58 55.5 69)" fill="#FFCCBC" stroke="#2A2547" stroke-width="1.6"/>
+    <circle cx="56.2" cy="71.2" r="1.8" fill="#FFFFFF" stroke="#2A2547" stroke-width="0.9"/>
+
+    <!-- Soft eyebrows -->
+    <path d="M 56.8 58.8 Q 57.8 57.0, 58.6 55.8" fill="none" stroke="#90A4AE" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M 61.8 50.6 Q 62.6 49.0, 64.0 47.7" fill="none" stroke="#90A4AE" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Closed eyes as two small curved lines -->
+    <path d="M 60.1 62.0 Q 63.4 61.2, 62.7 57.8" fill="none" stroke="#2A2547" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M 65.6 53.2 Q 68.9 52.4, 68.2 49.0" fill="none" stroke="#2A2547" stroke-width="1.8" stroke-linecap="round"/>
+
+    <!-- Rosy cheeks -->
+    <ellipse cx="63.5" cy="65.1" rx="3.4" ry="2.1" transform="rotate(-58 63.5 65.1)" fill="#FF8A80" opacity="0.65"/>
+    <ellipse cx="72.5" cy="50.7" rx="3.4" ry="2.1" transform="rotate(-58 72.5 50.7)" fill="#FF8A80" opacity="0.65"/>
+
+    <!-- Small button nose -->
+    <ellipse cx="66.7" cy="57.1" rx="1.6" ry="1.2" transform="rotate(-58 66.7 57.1)" fill="#FFA796" stroke="#2A2547" stroke-width="1"/>
+
+    <!-- Peaceful small smile -->
+    <path d="M 68.7 61.8 Q 72.4 60.8, 71.9 56.9" fill="none" stroke="#2A2547" stroke-width="1.7" stroke-linecap="round"/>
+  </g>
+
+  <g id="hair">
+    <!-- White hair bun attached to the back of the head, resting on the cushion -->
+    <circle cx="43.5" cy="45" r="8.5" fill="#CFD8DC" stroke="#2A2547" stroke-width="2"/>
+    <path d="M 39.5 44.5 Q 42 39.5, 47 41.5 Q 48.5 46, 44 48.5" fill="none" stroke="#B0BEC5" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="49" cy="48.5" r="2.2" fill="#FFE082" stroke="#2A2547" stroke-width="1"/>
+
+    <!-- Swept white hair framing the head & forehead -->
+    <path d="M 52.5 65.5 C 46 58, 45.5 45, 53.5 39.5 C 61.5 34.5, 73 36.5, 77 45 C 71.5 43.5, 63.5 45.5, 58 49 C 54 53.5, 53.5 59.5, 52.5 65.5 Z" fill="#ECEFF1" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Soft hair wave & highlight details -->
+    <path d="M 50 56 C 49.5 50, 52.5 45.5, 57 44" fill="none" stroke="#CFD8DC" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M 57.5 41 C 62.5 38.5, 68 39, 72 41.5" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+
+  <g id="glasses">
+    <!-- Round glasses slightly tilted -->
+    <circle cx="61.5" cy="60.3" r="4.5" fill="rgba(255,255,255,0.42)" stroke="#2A2547" stroke-width="1.9"/>
+    <circle cx="67.4" cy="51.7" r="4.5" fill="rgba(255,255,255,0.42)" stroke="#2A2547" stroke-width="1.9"/>
+    <!-- Bridge -->
+    <path d="M 64.0 56.6 Q 63.6 55.5, 64.9 55.4" fill="none" stroke="#2A2547" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Temple arms -->
+    <line x1="58.7" y1="63.9" x2="55.6" y2="67.8" stroke="#2A2547" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="70.2" y1="48.1" x2="72.0" y2="44.8" stroke="#2A2547" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Lens highlights -->
+    <path d="M 59.2 59.5 A 3 3 0 0 1 61.5 57.3" fill="none" stroke="#FFFFFF" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M 65.1 50.9 A 3 3 0 0 1 67.4 48.7" fill="none" stroke="#FFFFFF" stroke-width="1.1" stroke-linecap="round"/>
+  </g>
+
+  <g id="zzz">
+    <!-- Three purple "Z" letters floating up from her head, getting smaller -->
+    <!-- Largest Z (bottom) -->
+    <path d="M 73 27 L 82 27 L 73 36 L 82 36" fill="none" stroke="#2A2547" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 73 27 L 82 27 L 73 36 L 82 36" fill="none" stroke="#8B6FC9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Medium Z (middle) -->
+    <path d="M 84 18 L 91 18 L 84 24.5 L 91 24.5" fill="none" stroke="#2A2547" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 84 18 L 91 18 L 84 24.5 L 91 24.5" fill="none" stroke="#8B6FC9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Smallest Z (top) -->
+    <path d="M 93 10 L 98 10 L 93 14.5 L 98 14.5" fill="none" stroke="#2A2547" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 93 10 L 98 10 L 93 14.5 L 98 14.5" fill="none" stroke="#9F86D9" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

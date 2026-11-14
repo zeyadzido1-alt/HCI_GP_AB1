@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1040" width="1300" height="1040">
+  <defs>
+    <linearGradient id="sunsetSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#5B4A8B"/>
+      <stop offset="50%" stop-color="#E58A7A"/>
+      <stop offset="100%" stop-color="#F6C08A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky Background -->
+  <g id="sky">
+    <rect width="1300" height="1040" fill="url(#sunsetSkyGrad)"/>
+  </g>
+
+  <!-- Sun -->
+  <g id="sun">
+    <circle cx="110" cy="670" r="90" fill="#FFE79A"/>
+  </g>
+
+  <!-- Clouds -->
+  <g id="clouds">
+    <!-- Cloud 1 (Left, above living room ridge) -->
+    <path id="cloud-sunset-1" d="M 305 230 L 415 230 A 14 14 0 0 0 423 217 A 19 19 0 0 0 408 192 A 28 28 0 0 0 358 178 A 24 24 0 0 0 316 202 A 15 15 0 0 0 305 230 Z" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+
+    <!-- Cloud 2 (Upper-Right) -->
+    <path id="cloud-sunset-2" d="M 870 155 L 995 155 A 15 15 0 0 0 1004 141 A 21 21 0 0 0 988 114 A 32 32 0 0 0 932 98 A 28 28 0 0 0 882 126 A 18 18 0 0 0 870 155 Z" fill="#FFFFFF" stroke="#2A2547" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+</svg>

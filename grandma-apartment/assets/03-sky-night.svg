@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1040" width="1300" height="1040">
+  <defs>
+    <linearGradient id="nightSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#16163A"/>
+      <stop offset="100%" stop-color="#1C1C48"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky Background -->
+  <g id="sky">
+    <rect width="1300" height="1040" fill="url(#nightSkyGrad)"/>
+  </g>
+
+  <!-- Stars -->
+  <g id="stars">
+    <circle cx="65" cy="95" r="2.2" fill="#FFFFFF"/>
+    <circle cx="140" cy="240" r="1.8" fill="#EDE7F6"/>
+    <circle cx="220" cy="80" r="2" fill="#FFFFFF"/>
+    <circle cx="325" cy="45" r="2.4" fill="#D1C4E9"/>
+    <circle cx="420" cy="160" r="1.6" fill="#FFFFFF"/>
+    <circle cx="490" cy="85" r="2" fill="#EDE7F6"/>
+    <circle cx="610" cy="50" r="2.5" fill="#FFFFFF"/>
+    <circle cx="710" cy="140" r="1.8" fill="#D1C4E9"/>
+    <circle cx="780" cy="75" r="2.2" fill="#FFFFFF"/>
+    <circle cx="860" cy="195" r="1.6" fill="#EDE7F6"/>
+    <circle cx="960" cy="90" r="2.4" fill="#FFFFFF"/>
+    <circle cx="1020" cy="180" r="1.8" fill="#D1C4E9"/>
+    <circle cx="1220" cy="85" r="2.2" fill="#FFFFFF"/>
+    <circle cx="1240" cy="220" r="1.7" fill="#EDE7F6"/>
+    <circle cx="1180" cy="280" r="2" fill="#FFFFFF"/>
+    <circle cx="110" cy="340" r="1.8" fill="#D1C4E9"/>
+  </g>
+
+  <!-- Moon -->
+  <g id="moon">
+    <!-- Faint disc of the rest of the moon -->
+    <circle cx="1130" cy="110" r="65" fill="#232352"/>
+    <!-- Pale crescent opening to the right -->
+    <path d="M 1130 45 A 65 65 0 0 0 1130 175 A 52 52 0 0 1 1130 45 Z" fill="#C9C6E0"/>
+  </g>
+</svg>
