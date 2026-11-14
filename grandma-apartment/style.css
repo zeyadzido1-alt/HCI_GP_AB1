@@ -179,7 +179,6 @@ body {
 
 .game-stage {
   position: relative;
-  /* Preserve 1300:1040 (5:4) aspect ratio across any window size */
   width: min(100vw, calc(100dvh * 1300 / 1040));
   height: min(100dvh, calc(100vw * 1040 / 1300));
   overflow: hidden;
@@ -208,7 +207,6 @@ body {
   opacity: 1;
 }
 
-/* House + character share #house-layer so tint matches identically */
 #house-layer {
   filter: none;
   transition: filter var(--sky-transition);
@@ -226,7 +224,6 @@ body {
   filter: brightness(0.55) saturate(0.8) hue-rotate(10deg);
 }
 
-/* Night warm lamp & balcony glows */
 #night-glow-layer {
   opacity: 0;
   pointer-events: none;
@@ -238,7 +235,6 @@ body {
   opacity: 1;
 }
 
-/* Bulb elements glow yellow and twinkle at night */
 .master-svg .bulb {
   transition: fill var(--sky-transition), filter var(--sky-transition);
 }
@@ -359,25 +355,26 @@ body {
 }
 
 /* ==========================================================================
-   Floating Sleep / Wake Pill Button
+   Floating Sleep / Wake Pill Button (Compact)
    ========================================================================== */
 
 .floating-prompt {
   position: absolute;
   z-index: 25;
   transform: translate(-50%, -100%);
-  padding: 7px 14px;
+  padding: 3px 8px;
   border-radius: 999px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.94);
   color: var(--ink);
-  border: 2px solid #2a2547;
-  box-shadow: 0 6px 18px rgba(42, 37, 71, 0.28);
-  font-size: 13px;
+  border: 1.5px solid #2a2547;
+  box-shadow: 0 3px 9px rgba(42, 37, 71, 0.22);
+  font-size: 10px;
   font-weight: 800;
+  line-height: 1.25;
   letter-spacing: 0.01em;
   white-space: nowrap;
   cursor: pointer;
-  animation: promptPopIn 0.2s cubic-bezier(0.22, 1.35, 0.36, 1) forwards;
+  animation: promptPopIn 0.18s cubic-bezier(0.22, 1.35, 0.36, 1) forwards;
 }
 
 .floating-prompt:hover {
@@ -385,17 +382,260 @@ body {
 }
 
 .floating-prompt:active {
-  transform: translate(-50%, -100%) scale(0.96);
+  transform: translate(-50%, -100%) scale(0.95);
 }
 
 @keyframes promptPopIn {
   0% {
     opacity: 0;
-    transform: translate(-50%, -82%) scale(0.84);
+    transform: translate(-50%, -84%) scale(0.85);
   }
   100% {
     opacity: 1;
     transform: translate(-50%, -100%) scale(1);
+  }
+}
+
+/* ==========================================================================
+   Right Side Panel — Alerts & Tasks
+   Same springy cubic-bezier as the Sleep / Wake pill (promptPopIn)
+   ========================================================================== */
+
+.side-panel {
+  --panel-spring: cubic-bezier(0.22, 1.35, 0.36, 1);
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 20;
+  width: 214px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid var(--ink);
+  box-shadow: 0 6px 18px rgba(18, 16, 36, 0.22);
+  backdrop-filter: blur(6px);
+  color: var(--ink);
+  opacity: 0;
+  transform: translateX(calc(100% + 24px)) scale(0.96);
+  pointer-events: none;
+}
+
+.side-panel.is-visible {
+  pointer-events: auto;
+  animation: panelSlideIn 0.5s var(--panel-spring) forwards;
+}
+
+/* Leave room for the touch D-pad / Sleep button on touch devices */
+body.is-touch .side-panel {
+  bottom: 96px;
+}
+
+.panel-section {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(8px) scale(0.94);
+}
+
+.side-panel.is-visible .panel-section {
+  animation: sectionPopIn 0.32s var(--panel-spring) forwards;
+}
+
+.side-panel.is-visible .panel-alerts {
+  animation-delay: 0.22s;
+}
+
+.side-panel.is-visible .panel-tasks {
+  animation-delay: 0.34s;
+}
+
+.panel-section-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+}
+
+.panel-section-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.panel-section-title {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.panel-count {
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink);
+  background: #f0edff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 15px;
+  text-align: center;
+}
+
+.panel-alerts .panel-count {
+  background: #fff0e3;
+}
+
+.panel-count.bump {
+  animation: countBump 0.34s var(--panel-spring);
+}
+
+.panel-divider {
+  flex: none;
+  height: 1.5px;
+  border-radius: 999px;
+  background: rgba(42, 37, 71, 0.14);
+  transform: scaleX(0);
+}
+
+.side-panel.is-visible .panel-divider {
+  animation: dividerGrow 0.4s var(--panel-spring) 0.28s forwards;
+}
+
+.panel-list {
+  margin: 0;
+  padding: 0 2px 0 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.panel-list:empty {
+  display: none;
+}
+
+.panel-empty {
+  flex: 1;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  min-height: 52px;
+  border-radius: 10px;
+  border: 1.5px dashed rgba(42, 37, 71, 0.22);
+  background: rgba(240, 237, 255, 0.45);
+  color: #8a84a8;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.panel-list:not(:empty) + .panel-empty {
+  display: none;
+}
+
+/* Ready for future entries (window.GrandmaGame.panel.addAlert / addTask) */
+.panel-item {
+  padding: 6px 9px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ink);
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  box-shadow: 0 2px 6px rgba(42, 37, 71, 0.12);
+  animation: itemPopIn 0.3s var(--panel-spring) both;
+}
+
+.panel-alerts .panel-item {
+  background: #fff6ed;
+  border-color: #e49756;
+  color: #6b3b14;
+}
+
+.panel-item.is-leaving {
+  animation: itemPopOut 0.2s ease-in forwards;
+}
+
+@keyframes panelSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(100% + 24px)) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes sectionPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dividerGrow {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes itemPopIn {
+  0% {
+    opacity: 0;
+    transform: translateX(14px) scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes itemPopOut {
+  100% {
+    opacity: 0;
+    transform: translateX(14px) scale(0.9);
+  }
+}
+
+@keyframes countBump {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side-panel.is-visible,
+  .side-panel.is-visible .panel-section,
+  .side-panel.is-visible .panel-divider,
+  .panel-item,
+  .panel-count.bump {
+    animation-duration: 0.01s !important;
+    animation-delay: 0s !important;
   }
 }
 
@@ -406,7 +646,8 @@ body {
 .debug-hud {
   position: absolute;
   top: 14px;
-  right: 14px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 22;
   padding: 7px 12px;
   border-radius: 10px;
@@ -422,7 +663,7 @@ body {
 .placeholder-toast {
   position: absolute;
   bottom: 14px;
-  right: 14px;
+  left: 14px;
   z-index: 22;
   display: flex;
   align-items: center;
@@ -562,7 +803,28 @@ body.is-touch .touch-controls {
   }
 
   .floating-prompt {
-    font-size: 12px;
-    padding: 6px 11px;
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .side-panel {
+    top: 8px;
+    right: 8px;
+    width: 148px;
+    padding: 8px 9px 9px;
+    gap: 6px;
+  }
+
+  body.is-touch .side-panel {
+    bottom: 90px;
+  }
+
+  .panel-section-title {
+    font-size: 11.5px;
+  }
+
+  .panel-empty {
+    min-height: 40px;
+    font-size: 10px;
   }
 }

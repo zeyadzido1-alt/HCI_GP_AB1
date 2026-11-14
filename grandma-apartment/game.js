@@ -14,8 +14,32 @@
   const SCENE_HEIGHT = 1040;
   const SVG_NS = 'http://www.w3.org/2000/svg';
 
-  const SPEED = 3; // Grid tiles per second
-  const WALK_FRAME_MS = 180; // ms per walk frame alternation
+  // House placement inside the 1300x1040 stage (sky stays full-size behind it).
+  // The house is scaled down and shifted left so it never overlaps the right side panel.
+  const HOUSE_SCALE = 0.86; // 1 = original size
+  const HOUSE_NATIVE_CENTER = { x: 590, y: 505 }; // Center of the apartment drawing (unscaled)
+  const HOUSE_TARGET_CENTER = { x: 540, y: 520 }; // Where that center sits on the stage
+  const HOUSE_OFFSET = {
+    x: HOUSE_TARGET_CENTER.x - HOUSE_NATIVE_CENTER.x * HOUSE_SCALE,
+    y: HOUSE_TARGET_CENTER.y - HOUSE_NATIVE_CENTER.y * HOUSE_SCALE,
+  };
+
+  // Converts house-space coordinates (gridToScreen output) to stage coordinates
+  function houseToStage(p) {
+    return {
+      x: p.x * HOUSE_SCALE + HOUSE_OFFSET.x,
+      y: p.y * HOUSE_SCALE + HOUSE_OFFSET.y,
+    };
+  }
+
+  // Movement is defined in SCREEN pixels so every direction feels equally fast on screen
+  const SCREEN_SPEED_PX = 150; // Horizontal on-screen walking speed (px / second)
+  const VERTICAL_SCREEN_FACTOR = 0.78; // Up/down on-screen speed relative to left/right (isometric feel)
+  const ACCEL_RATE = 14; // Velocity ramp-up responsiveness (higher = snappier)
+  const DECEL_RATE = 20; // Velocity stop responsiveness
+  const MAX_COLLISION_SUBSTEP = 0.04; // Prevents tunneling through partitions
+  const WALK_FRAME_MS = 175; // ms per walk frame alternation
+  const WALK_GRACE_MS = 110; // Keeps walk pose briefly when sliding along walls (prevents flicker)
   const SKY_INTERVAL_MS = 40000; // 40 seconds for Day & Sunset phases
   const NIGHT_SPEED_MULTIPLIER = 1.75; // Night passes 1.75x faster (~22.86s)
 
@@ -25,17 +49,15 @@
     sofa: 150 * CHAR_SCALE, // 225px sleeping on sofa
     bed: 120 * CHAR_SCALE,  // 180px sleeping on bed
   };
-  // Standing/walking/fallen rendered width in scene px
-
 
   const SLEEP_SPOTS = {
     sofa: { x: 3.5, y: 7.2 },
-    bed: { x: 9.5, y: 9.0 },
+    bed: { x: 9.4, y: 8.0 },
   };
 
   const START_POS = { x: 2.0, y: 5.5 }; // Hallway starting position
   const COLLISION_RADIUS = 0.25; // Character circle radius in grid tiles
-  const WALL_THICKNESS = 0.15; // Partition wall thickness in grid tiles
+  const WALL_THICKNESS = 0.2; // Partition wall thickness in grid tiles
   const INTERACTION_EXPAND = 0.6; // Furniture interaction zone expansion (tiles)
 
   // Night radial glow coordinates (grid space + vertical screen lift in px)
@@ -112,27 +134,38 @@
       // y = 6.5 from x 0–6 (hallway / living room divider)
       { id: 'wall-hall-living', x1: 0, y1: 6.5, x2: 6, y2: 6.5 },
 
-      // y = 6.5 from x 7–12 with doorway gap x 7–8
+      // y = 6.5 from x 8–12 with doorway gap x 7–8 (kitchen / bedroom divider)
       { id: 'wall-kitchen-bedroom', x1: 8, y1: 6.5, x2: 12, y2: 6.5 },
 
-      // x = 6.5 from y 8–12 (living room / bedroom divider)
+      // x = 6.5 from y 8.7–12 (living room / bedroom divider)
       { id: 'wall-living-bedroom', x1: 6.5, y1: 8.7, x2: 6.5, y2: 12 },
     ],
 
-    // Furniture footprints (blocked axis-aligned boxes in grid space)
+    // Furniture footprints (blocked axis-aligned boxes in grid space).
+    // Entries with `blocker: true` are invisible collision-only zones (not used for depth sorting).
+    // All footprints include the furniture's floor border so the character never steps onto it.
     footprints: [
       // Bathroom (x0-6, y0-4.5)
-      { id: 'bathtub', x1: 0.5, y1: 0.3, x2: 3.5, y2: 1.5 },
-      { id: 'sink', x1: 4.5, y1: 0.3, x2: 5.5, y2: 1.2 },
-      { id: 'toilet', x1: 5.0, y1: 2.5, x2: 5.8, y2: 3.3 },
+      // Tub: flush to y=0 wall, only the left corner (x < 0.65) behind it is reachable.
+      { id: 'bathtub', x1: 0.65, y1: 0.0, x2: 3.75, y2: 1.8 },
+      // Seals the slot between tub and sink so the character can't squeeze behind either.
+      { id: 'bath-gap-blocker', x1: 3.75, y1: 0.0, x2: 4.1, y2: 1.72, blocker: true },
+      // Sink: flush to y=0 wall incl. floor border; only the right corner (x > 5.3) is reachable.
+      { id: 'sink', x1: 4.1, y1: 0.0, x2: 5.3, y2: 1.65 },
+      { id: 'toilet', x1: 5.0, y1: 2.5, x2: 5.85, y2: 3.35 },
 
-      // Kitchen (x6-12, y0-6.5)
-      { id: 'fridge', x1: 6.2, y1: 0.3, x2: 7.2, y2: 1.5 },
-      { id: 'kitchen-counter', x1: 7.5, y1: 0.2, x2: 11.8, y2: 1.3 },
-      { id: 'kitchen-table', x1: 9.3, y1: 3.4, x2: 11.0, y2: 4.6 },
+      // Kitchen (x6-12, y0-6.5) — flush to walls & expanded for chairs/floor borders
+      { id: 'fridge', x1: 6.0, y1: 0.0, x2: 7.35, y2: 1.85 },
+      { id: 'kitchen-counter', x1: 7.3, y1: 0.0, x2: 12.0, y2: 1.75 },
+      { id: 'kitchen-table', x1: 8.55, y1: 2.75, x2: 11.65, y2: 5.15 },
+      // Dead notch between table and right wall
+      { id: 'kitchen-table-right-blocker', x1: 11.65, y1: 2.75, x2: 12.0, y2: 5.15, blocker: true },
+      // Strip along the kitchen side of the kitchen/bedroom wall: keeps the character from
+      // appearing squeezed between the kitchen wall and the bed / wardrobe.
+      { id: 'bed-back-blocker', x1: 7.25, y1: 5.15, x2: 12.0, y2: 6.5, blocker: true },
 
       // Hallway (x0-7, y4.5-6.5)
-      { id: 'shoe-cabinet', x1: 0.3, y1: 4.7, x2: 1.2, y2: 5.4 },
+      { id: 'shoe-cabinet', x1: 0.25, y1: 4.65, x2: 1.25, y2: 5.45 },
 
       // Living Room (x0-6, y6.5-12)
       { id: 'sofa', x1: 1.5, y1: 6.6, x2: 5.5, y2: 7.8, interactive: 'sofa' },
@@ -141,14 +174,34 @@
       { id: 'floor-lamp', x1: 0.3, y1: 11.3, x2: 0.7, y2: 11.7 },
 
       // Bedroom (x7-12, y6.5-12)
-      { id: 'wardrobe', x1: 7.0, y1: 7.0, x2: 8.0, y2: 8.0 },
-      { id: 'bed', x1: 8.5, y1: 7.0, x2: 10.5, y2: 11.0, interactive: 'bed' },
-      { id: 'nightstand', x1: 11.0, y1: 7.2, x2: 11.8, y2: 8.0 },
+      // Bed sealed to the y=6.5 kitchen partition; left-side blocker stops the character from
+      // standing behind the bed (between the kitchen wall, the corridor and the bed).
+      { id: 'bed', x1: 8.15, y1: 6.5, x2: 10.65, y2: 9.25, interactive: 'bed' },
+      { id: 'bed-left-blocker', x1: 7.25, y1: 6.5, x2: 8.15, y2: 9.25, blocker: true },
+      { id: 'wardrobe', x1: 10.65, y1: 6.5, x2: 12.0, y2: 7.85 },
 
       // Balcony (x0-6, y12-15)
       { id: 'balcony-table', x1: 1.6, y1: 13.1, x2: 2.4, y2: 13.9 },
     ],
   };
+
+  // Matches furniture <g id> / class names to footprints (used for accurate depth sorting).
+  const FOOTPRINT_MATCHERS = [
+    { id: 'kitchen-counter', re: /counter|stove|oven|cooktop|kitchen[-_ ]?(sink|cabinet|unit)/i },
+    { id: 'sink', re: /sink|vanity|wash.?basin|basin/i, not: /kitchen/i },
+    { id: 'bathtub', re: /bath.?tub|(^|[-_ ])tub($|[-_ ])/i },
+    { id: 'toilet', re: /toilet|(^|[-_ ])wc($|[-_ ])/i },
+    { id: 'fridge', re: /fridge|refrigerator/i },
+    { id: 'kitchen-table', re: /kitchen[-_ ]?table|dining|chairs?/i },
+    { id: 'shoe-cabinet', re: /shoe/i },
+    { id: 'sofa', re: /sofa|couch/i },
+    { id: 'coffee-table', re: /coffee/i },
+    { id: 'tv-frame', re: /(^|[-_ ])tv($|[-_ ])|television/i },
+    { id: 'floor-lamp', re: /floor[-_ ]?lamp/i },
+    { id: 'wardrobe', re: /wardrobe|closet|armoire/i },
+    { id: 'bed', re: /(^|[-_ ])bed($|[-_ ])/i, not: /bedside|bedroom|nightstand/i },
+    { id: 'balcony-table', re: /bistro|balcony[-_ ]?table/i },
+  ];
 
   // ========================================================================
   // 4. COORDINATE HELPERS
@@ -189,7 +242,6 @@
   function buildPlaceholderSvgText(key, filename) {
     const shortName = filename.split('/').pop();
 
-    // Sky placeholders
     if (key.startsWith('sky')) {
       const palette = {
         skyDay: ['#9fd8ff', '#dff4ff', '#62a9df'],
@@ -223,7 +275,6 @@
       </svg>`;
     }
 
-    // Structure placeholder: isometric floor rooms + balcony
     if (key === 'structure') {
       const rooms = [
         { name: 'BATHROOM', x1: 0, y1: 0, x2: 6, y2: 4.5, fill: '#dceff5' },
@@ -235,9 +286,7 @@
         { name: 'BALCONY', x1: 0, y1: 12, x2: 6, y2: 15, fill: '#d6e4c8' },
       ];
       const roomPolys = rooms
-        .map((r) => {
-          return `<polygon points="${isoPolyPoints(r.x1, r.y1, r.x2, r.y2)}" fill="${r.fill}" stroke="#b9ad9e" stroke-width="1.5"/>`;
-        })
+        .map((r) => `<polygon points="${isoPolyPoints(r.x1, r.y1, r.x2, r.y2)}" fill="${r.fill}" stroke="#b9ad9e" stroke-width="1.5"/>`)
         .join('');
 
       const topLeftWall = `${gridToScreen(0, 0).x},${gridToScreen(0, 0).y} ${gridToScreen(0, 12).x},${gridToScreen(0, 12).y} ${gridToScreen(0, 12).x},${gridToScreen(0, 12).y - 78} ${gridToScreen(0, 0).x},${gridToScreen(0, 0).y - 78}`;
@@ -256,21 +305,20 @@
       </svg>`;
     }
 
-    // Partitions placeholder: back partition groups + front-walls + balcony-railing
     if (key === 'partitions') {
-      const makeWallQuad = (x1, y1, x2, y2, h = 58, fill = '#ede6dc') => {
+      const makeWallQuad = (x1, y1, x2, y2, h = 58, fill = '#ede6dc', id = '') => {
         const a = gridToScreen(x1, y1);
         const b = gridToScreen(x2, y2);
-        return `<polygon points="${a.x},${a.y} ${b.x},${b.y} ${b.x},${b.y - h} ${a.x},${a.y - h}" fill="${fill}" fill-opacity="0.92" stroke="#8f8377" stroke-width="2"/>`;
+        return `<polygon ${id ? `id="${id}"` : ''} points="${a.x},${a.y} ${b.x},${b.y} ${b.x},${b.y - h} ${a.x},${a.y - h}" fill="${fill}" fill-opacity="0.92" stroke="#8f8377" stroke-width="2"/>`;
       };
       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1040">
         <g id="interior-partitions">
-          ${makeWallQuad(0, 4.5, 4, 4.5, 56, '#ebe3d8')}
-          ${makeWallQuad(5, 4.5, 6, 4.5, 56, '#ebe3d8')}
-          ${makeWallQuad(6, 0, 6, 4.5, 56, '#e0d7ca')}
-          ${makeWallQuad(0, 6.5, 6, 6.5, 56, '#ebe3d8')}
-          ${makeWallQuad(8, 6.5, 12, 6.5, 56, '#ebe3d8')}
-          ${makeWallQuad(6.5, 8.7, 6.5, 12, 56, '#e0d7ca')}
+          ${makeWallQuad(0, 4.5, 4, 4.5, 56, '#ebe3d8', 'wall-bath-left')}
+          ${makeWallQuad(5, 4.5, 6, 4.5, 56, '#ebe3d8', 'wall-bath-right')}
+          ${makeWallQuad(6, 0, 6, 4.5, 56, '#e0d7ca', 'wall-bath-kitchen')}
+          ${makeWallQuad(0, 6.5, 6, 6.5, 56, '#ebe3d8', 'wall-hall-living')}
+          ${makeWallQuad(8, 6.5, 12, 6.5, 56, '#ebe3d8', 'wall-kitchen-bedroom')}
+          ${makeWallQuad(6.5, 8.7, 6.5, 12, 56, '#e0d7ca', 'wall-living-bedroom')}
         </g>
         <g id="front-walls">
           ${makeWallQuad(12, 0, 12, 12, 24, '#dfd6ca')}
@@ -295,29 +343,27 @@
       </svg>`;
     }
 
-    // Furniture placeholders split across the 3 furniture files
     if (key.startsWith('furniture')) {
       const groupsByFile = {
         furniture1: [
-          { id: 'bathtub', x1: 0.5, y1: 0.3, x2: 3.5, y2: 1.5, h: 24, color: '#9ed5e8', label: 'Bathtub' },
-          { id: 'sink', x1: 4.5, y1: 0.3, x2: 5.5, y2: 1.2, h: 28, color: '#b7e2f0', label: 'Sink' },
-          { id: 'toilet', x1: 5.0, y1: 2.5, x2: 5.8, y2: 3.3, h: 26, color: '#ccebf5', label: 'Toilet' },
-          { id: 'fridge', x1: 6.2, y1: 0.3, x2: 7.2, y2: 1.5, h: 58, color: '#d7e0e6', label: 'Fridge' },
-          { id: 'kitchen-counter', x1: 7.5, y1: 0.2, x2: 11.8, y2: 1.3, h: 30, color: '#e8c89b', label: 'Counter' },
+          { id: 'bed', x1: 8.2, y1: 6.9, x2: 10.6, y2: 9.1, h: 24, color: '#9c8be0', label: 'Bed' },
+          { id: 'wardrobe', x1: 10.7, y1: 6.6, x2: 11.9, y2: 7.8, h: 62, color: '#a87d56', label: 'Wardrobe' },
+          { id: 'bistro-set', x1: 1.6, y1: 13.1, x2: 2.4, y2: 13.9, h: 22, color: '#8ac288', label: 'Balcony Tbl' },
         ],
         furniture2: [
-          { id: 'kitchen-table', x1: 9.3, y1: 3.4, x2: 11.0, y2: 4.6, h: 26, color: '#d9a46c', label: 'Table' },
           { id: 'shoe-cabinet', x1: 0.3, y1: 4.7, x2: 1.2, y2: 5.4, h: 28, color: '#c48f65', label: 'Shoes' },
           { id: 'sofa', x1: 1.5, y1: 6.6, x2: 5.5, y2: 7.8, h: 30, color: '#e67e73', label: 'Sofa' },
           { id: 'coffee-table', x1: 2.5, y1: 9.0, x2: 4.5, y2: 10.0, h: 16, color: '#c9935b', label: 'Coffee Tbl' },
           { id: 'tv-frame', x1: 1.5, y1: 11.3, x2: 5.5, y2: 11.7, h: 38, color: '#5c607a', label: 'TV' },
+          { id: 'floor-lamp', x1: 0.3, y1: 11.3, x2: 0.7, y2: 11.7, h: 52, color: '#f2c96d', label: 'Lamp', bulb: true },
         ],
         furniture3: [
-          { id: 'floor-lamp', x1: 0.3, y1: 11.3, x2: 0.7, y2: 11.7, h: 52, color: '#f2c96d', label: 'Lamp', bulb: true },
-          { id: 'wardrobe', x1: 7.0, y1: 7.0, x2: 8.0, y2: 8.0, h: 62, color: '#a87d56', label: 'Wardrobe' },
-          { id: 'bed', x1: 8.5, y1: 7.0, x2: 10.5, y2: 11.0, h: 24, color: '#9c8be0', label: 'Bed' },
-          { id: 'nightstand', x1: 11.0, y1: 7.2, x2: 11.8, y2: 8.0, h: 24, color: '#c4966a', label: 'Lamp', bulb: true },
-          { id: 'balcony-table', x1: 1.6, y1: 13.1, x2: 2.4, y2: 13.9, h: 22, color: '#8ac288', label: 'Balcony Tbl' },
+          { id: 'bathtub', x1: 0.7, y1: 0.1, x2: 3.6, y2: 1.6, h: 24, color: '#9ed5e8', label: 'Bathtub' },
+          { id: 'sink', x1: 4.3, y1: 0.1, x2: 5.3, y2: 1.4, h: 28, color: '#b7e2f0', label: 'Sink' },
+          { id: 'toilet', x1: 5.0, y1: 2.5, x2: 5.8, y2: 3.3, h: 26, color: '#ccebf5', label: 'Toilet' },
+          { id: 'fridge', x1: 6.1, y1: 0.1, x2: 7.3, y2: 1.55, h: 58, color: '#d7e0e6', label: 'Fridge' },
+          { id: 'kitchen-counter', x1: 7.4, y1: 0.1, x2: 11.9, y2: 1.45, h: 30, color: '#e8c89b', label: 'Counter' },
+          { id: 'kitchen-table', x1: 9.0, y1: 3.2, x2: 11.2, y2: 4.8, h: 26, color: '#d9a46c', label: 'Table' },
         ],
       };
 
@@ -350,7 +396,6 @@
       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1040">${items.map(makeIsoBox).join('')}</svg>`;
     }
 
-    // Grandma pose placeholders (coloured box + filename + clear pose visual)
     if (key === 'grandmaSleeping') {
       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 100">
         <rect x="6" y="34" width="168" height="58" rx="14" fill="#c7b8ff" stroke="#2A2547" stroke-width="3"/>
@@ -374,7 +419,6 @@
       </svg>`;
     }
 
-    // Standing / Walk 1 / Walk 2 placeholders
     const poseColor = {
       grandmaStanding: '#ffe29a',
       grandmaWalk1: '#a8f0c6',
@@ -424,8 +468,6 @@
     }));
   }
 
-  // Scope internal <defs> IDs (gradients, clips, masks, filters) and <style>
-  // classes (except .bulb) per file so combining 13 SVGs never causes collisions.
   function scopeSvgInternals(svgRoot, prefix) {
     const reservedIds = new Set(['front-walls', 'balcony-railing', 'balcony-pergola-arch', 'zzz']);
     const idMap = new Map();
@@ -491,7 +533,7 @@
     let isPlaceholder = false;
 
     try {
-      const response = await fetch(filename, { cache: 'default' });
+      const response = await fetch(filename, { cache: 'no-cache' });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -501,6 +543,7 @@
         throw new Error('Invalid SVG markup');
       }
     } catch (err) {
+      console.warn(`[Assets] Failed to load "${filename}" (${err.message}); using placeholder.`);
       isPlaceholder = true;
       svgText = buildPlaceholderSvgText(key, filename);
     }
@@ -581,9 +624,6 @@
     }
   }
 
-  // Extract individual furniture <g id="..."> items from a furniture SVG.
-  // Rugs/mats/doormats go to carpetsLayer (below partitions and furniture),
-  // bedroom plants are skipped, and everything else goes to depthLayer.
   function extractFurnitureGroups(svgRoot, masterDefs, depthLayer, carpetsLayer, sourceKey) {
     const visualChildren = [];
     for (const child of Array.from(svgRoot.children)) {
@@ -596,7 +636,6 @@
       visualChildren.push(child);
     }
 
-    // If an editor exported a single outer wrapper <g> containing multiple <g id="..."> items, unwrap it
     let itemsToMove = visualChildren;
     if (
       visualChildren.length === 1 &&
@@ -612,7 +651,6 @@
       }
       const imported = document.importNode(item, true);
 
-      // Remove any nested bedroom plant elements if present
       imported.querySelectorAll('[id*="bedroom"][id*="plant"], [id*="plant"][id*="bedroom"], #bedroom-plant').forEach((n) => n.remove());
       if (sourceKey === 'furniture1') {
         imported.querySelectorAll('.potted-plant').forEach((n) => {
@@ -626,6 +664,130 @@
         depthLayer.appendChild(imported);
       }
     }
+  }
+
+  // Split interior partitions into backPartitionsLayer (bedroom partitions only,
+  // rendered BELOW character/furniture) and frontPartitionsLayer (bathroom, hallway,
+  // living, kitchen & all other partitions, rendered ABOVE bathtub, furniture and character).
+  // Nested wall groups are flattened when they mix bedroom and non-bedroom walls, and
+  // their parent transforms are preserved so nothing shifts visually.
+  const BEDROOM_PARTITION_MIN_SCREEN_Y = 578; // Lowest floor point of a wall at/after this Y => bedroom wall
+
+  function classifyPartitionById(el) {
+    const label = `${el.id || ''} ${el.getAttribute('class') || ''}`;
+    if (/bedroom/i.test(label)) return 'back';
+    if (/bath|hall|living|kitchen|toilet|wc/i.test(label)) return 'front';
+    return null;
+  }
+
+  function getBoxInLayer(el, layer) {
+    try {
+      const bbox = el.getBBox();
+      if (!bbox || (bbox.width === 0 && bbox.height === 0)) return null;
+      const elCtm = el.getCTM();
+      const layerCtm = layer.getCTM();
+      if (elCtm && layerCtm) {
+        const rel = layerCtm.inverse().multiply(elCtm);
+        const pts = [
+          new DOMPoint(bbox.x, bbox.y).matrixTransform(rel),
+          new DOMPoint(bbox.x + bbox.width, bbox.y).matrixTransform(rel),
+          new DOMPoint(bbox.x, bbox.y + bbox.height).matrixTransform(rel),
+          new DOMPoint(bbox.x + bbox.width, bbox.y + bbox.height).matrixTransform(rel),
+        ];
+        return {
+          minX: Math.min(...pts.map((p) => p.x)),
+          maxX: Math.max(...pts.map((p) => p.x)),
+          minY: Math.min(...pts.map((p) => p.y)),
+          maxY: Math.max(...pts.map((p) => p.y)),
+        };
+      }
+      return { minX: bbox.x, maxX: bbox.x + bbox.width, minY: bbox.y, maxY: bbox.y + bbox.height };
+    } catch {
+      return null;
+    }
+  }
+
+  function classifyPartition(el, houseLayer) {
+    const byId = classifyPartitionById(el);
+    if (byId) return byId;
+    const box = getBoxInLayer(el, houseLayer);
+    if (!box) return 'front';
+    return box.maxY >= BEDROOM_PARTITION_MIN_SCREEN_Y ? 'back' : 'front';
+  }
+
+  function hasGroupEffects(el) {
+    if (el.hasAttribute('clip-path') || el.hasAttribute('mask') || el.hasAttribute('filter')) return true;
+    const op = el.getAttribute('opacity');
+    if (op !== null && parseFloat(op) < 1) return true;
+    const style = el.getAttribute('style') || '';
+    return /clip-path|mask|filter|opacity/i.test(style);
+  }
+
+  function splitPartitionsIntoBackAndFront(sourceLayer, backPartitionsLayer, frontPartitionsLayer, houseLayer) {
+    const SKIP_TAGS = new Set(['defs', 'style', 'title', 'desc', 'metadata']);
+    const pieces = []; // { el, cls, parent }
+
+    const collect = (el, depth) => {
+      const tag = el.tagName.toLowerCase();
+      if (SKIP_TAGS.has(tag)) return;
+
+      const ownCls = classifyPartition(el, houseLayer);
+      const canFlatten =
+        tag === 'g' &&
+        depth < 6 &&
+        el.children.length > 0 &&
+        !hasGroupEffects(el) &&
+        !classifyPartitionById(el);
+
+      if (canFlatten) {
+        const kids = Array.from(el.children).filter((c) => !SKIP_TAGS.has(c.tagName.toLowerCase()));
+        const kidClasses = kids.map((k) => classifyPartition(k, houseLayer));
+        const mixed = kidClasses.some((c) => c !== kidClasses[0]);
+        const isContainer = /^(interior-partitions|partition-walls|partitions?|walls?|interior-walls)$/i.test(el.id || '');
+        if (mixed || (isContainer && kids.length > 0)) {
+          kids.forEach((k) => collect(k, depth + 1));
+          return;
+        }
+      }
+      pieces.push({ el, cls: ownCls, parent: el.parentNode });
+    };
+
+    Array.from(sourceLayer.children).forEach((c) => collect(c, 0));
+
+    // Pre-compute parent transforms (relative to sourceLayer) while still in the DOM
+    const sourceCtm = sourceLayer.getCTM();
+    for (const p of pieces) {
+      p.matrix = null;
+      if (p.parent !== sourceLayer && p.parent && p.parent.getCTM && sourceCtm) {
+        try {
+          const parentCtm = p.parent.getCTM();
+          if (parentCtm) p.matrix = sourceCtm.inverse().multiply(parentCtm);
+        } catch {
+          p.matrix = null;
+        }
+      }
+    }
+
+    for (const p of pieces) {
+      const target = p.cls === 'back' ? backPartitionsLayer : frontPartitionsLayer;
+      if (p.matrix) {
+        const m = p.matrix;
+        const isIdentity = Math.abs(m.a - 1) < 1e-6 && Math.abs(m.b) < 1e-6 && Math.abs(m.c) < 1e-6 &&
+          Math.abs(m.d - 1) < 1e-6 && Math.abs(m.e) < 1e-6 && Math.abs(m.f) < 1e-6;
+        if (!isIdentity) {
+          const wrap = createSvgEl('g', {
+            class: 'partition-piece-wrap',
+            transform: `matrix(${m.a} ${m.b} ${m.c} ${m.d} ${m.e} ${m.f})`,
+          });
+          wrap.appendChild(p.el);
+          target.appendChild(wrap);
+          continue;
+        }
+      }
+      target.appendChild(p.el);
+    }
+
+    sourceLayer.innerHTML = '';
   }
 
   function buildNightGlowLayer(masterDefs) {
@@ -681,30 +843,45 @@
     }
   }
 
-  function findFurnitureGroup(depthLayer, type) {
-    const children = Array.from(depthLayer.children).filter((el) => el.id !== 'grandma-character');
-    const regex = type === 'sofa' ? /sofa/i : /\bbed\b|^bed$|bed(?!side|room)/i;
-    const byId = children.find((el) => el.id && regex.test(el.id));
-    if (byId) return byId;
+  // Links each furniture group in #depth-layer to a collision footprint (by id/class name,
+  // otherwise by on-screen position), so depth can be decided with real isometric geometry.
+  function matchFootprintForElement(el, box) {
+    const label = `${el.id || ''} ${el.getAttribute('class') || ''}`;
+    for (const m of FOOTPRINT_MATCHERS) {
+      if (m.re.test(label) && !(m.not && m.not.test(label))) {
+        return COLLISION.footprints.find((f) => f.id === m.id) || null;
+      }
+    }
+    if (!box) return null;
 
-    const spot = gridToScreen(SLEEP_SPOTS[type].x, SLEEP_SPOTS[type].y);
     let best = null;
     let bestDist = Infinity;
-    for (const el of children) {
-      try {
-        const b = el.getBBox();
-        const cx = b.x + b.width / 2;
-        const cy = b.y + b.height / 2;
-        const d = Math.hypot(cx - spot.x, cy - spot.y);
-        if (d < bestDist) {
-          bestDist = d;
-          best = el;
-        }
-      } catch {
-        // Ignore unmeasurable groups
+    const cx = (box.minX + box.maxX) / 2;
+    const width = box.maxX - box.minX;
+    for (const f of COLLISION.footprints) {
+      if (f.blocker) continue;
+      const bottom = gridToScreen(f.x2, f.y2);
+      const left = gridToScreen(f.x1, f.y2).x;
+      const right = gridToScreen(f.x2, f.y1).x;
+      const fcx = (left + right) / 2;
+      if (width > (right - left) * 1.8 + 30) continue;
+      const d = Math.hypot(cx - fcx, box.maxY - bottom.y);
+      if (d < bestDist && d < 48) {
+        bestDist = d;
+        best = f;
       }
     }
     return best;
+  }
+
+  // Isometric depth relation between the character point (px, py) and a footprint box.
+  // Returns +1 when the character is in front of the box, -1 when behind.
+  function relationToFootprint(px, py, f) {
+    const front = px >= f.x2 || py >= f.y2;
+    const behind = px <= f.x1 || py <= f.y1;
+    if (front && !behind) return 1;
+    if (behind && !front) return -1;
+    return px + py >= (f.x1 + f.x2 + f.y1 + f.y2) / 2 ? 1 : -1;
   }
 
   // ========================================================================
@@ -720,13 +897,31 @@
     return { x: x1 + t * dx, y: y1 + t * dy };
   }
 
+  function segmentsIntersect(ax, ay, bx, by, cx, cy, dx, dy) {
+    const ccw = (p1x, p1y, p2x, p2y, p3x, p3y) =>
+      (p3y - p1y) * (p2x - p1x) > (p2y - p1y) * (p3x - p1x);
+    return (
+      ccw(ax, ay, cx, cy, dx, dy) !== ccw(bx, by, cx, cy, dx, dy) &&
+      ccw(ax, ay, bx, by, cx, cy) !== ccw(ax, ay, bx, by, dx, dy)
+    );
+  }
+
+  function doesSegmentCrossPartition(x1, y1, x2, y2) {
+    for (const w of COLLISION.partitionWalls) {
+      if (segmentsIntersect(x1, y1, x2, y2, w.x1, w.y1, w.x2, w.y2)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function resolveCircleCollisions(cx, cy) {
     const r = COLLISION.charRadius;
     const halfWall = COLLISION.wallThickness / 2;
     let x = cx;
     let y = cy;
 
-    for (let iter = 0; iter < 5; iter++) {
+    for (let iter = 0; iter < 6; iter++) {
       x = clamp(x, r, 12 - r);
       y = clamp(y, r, 15 - r);
       if (y > 12 && x > 6) {
@@ -800,6 +995,41 @@
     return { x, y };
   }
 
+  // Sub-stepped movement so the character glides smoothly along walls and can never cross a partition
+  function moveWithSubsteps(startX, startY, dx, dy) {
+    const dist = Math.hypot(dx, dy);
+    if (dist < 1e-7) return { x: startX, y: startY };
+
+    const steps = Math.max(1, Math.ceil(dist / MAX_COLLISION_SUBSTEP));
+    const stepDx = dx / steps;
+    const stepDy = dy / steps;
+
+    let x = startX;
+    let y = startY;
+    for (let i = 0; i < steps; i++) {
+      // Try the full step, then each axis alone, so the character slides along walls
+      // instead of stopping dead — but never crosses a partition.
+      const attempts = [
+        [stepDx, stepDy],
+        [stepDx, 0],
+        [0, stepDy],
+      ];
+      let moved = false;
+      for (const [ax, ay] of attempts) {
+        if (Math.abs(ax) < 1e-9 && Math.abs(ay) < 1e-9) continue;
+        const next = resolveCircleCollisions(x + ax, y + ay);
+        if (doesSegmentCrossPartition(x, y, next.x, next.y)) continue;
+        if (Math.hypot(next.x - x, next.y - y) < 1e-7) continue;
+        x = next.x;
+        y = next.y;
+        moved = true;
+        break;
+      }
+      if (!moved) break;
+    }
+    return { x, y };
+  }
+
   function isPositionFree(x, y) {
     const resolved = resolveCircleCollisions(x, y);
     return Math.hypot(resolved.x - x, resolved.y - y) < 0.015;
@@ -825,7 +1055,7 @@
     candidates.sort((a, b) => Math.hypot(a.x - refX, a.y - refY) - Math.hypot(b.x - refX, b.y - refY));
 
     for (const c of candidates) {
-      if (isPositionFree(c.x, c.y)) {
+      if (isPositionFree(c.x, c.y) && !doesSegmentCrossPartition(refX, refY, c.x, c.y)) {
         return c;
       }
     }
@@ -898,9 +1128,10 @@
       layer.appendChild(
         createSvgEl('polygon', {
           points: isoPolyPoints(f.x1, f.y1, f.x2, f.y2),
-          fill: 'rgba(255, 68, 138, 0.25)',
-          stroke: '#ff448a',
+          fill: f.blocker ? 'rgba(170, 120, 255, 0.22)' : 'rgba(255, 68, 138, 0.25)',
+          stroke: f.blocker ? '#aa78ff' : '#ff448a',
           'stroke-width': 2,
+          'stroke-dasharray': f.blocker ? '4 3' : 'none',
         })
       );
 
@@ -1014,7 +1245,6 @@
       { once: true, passive: true }
     );
 
-    // 1. Load & preload all 13 SVGs
     const assets = await loadAllAssets((done, total) => {
       loadingBarFill.style.width = `${Math.round((done / total) * 100)}%`;
       loadingStatus.textContent = `Loaded SVG layers (${done} / ${total})`;
@@ -1022,9 +1252,6 @@
 
     const failedAssets = Object.values(assets).filter((a) => a.isPlaceholder);
 
-    // 2. Assemble ONE master <svg viewBox="0 0 1300 1040">
-    // Layer order inside #house-layer:
-    // structure -> carpets -> partition walls -> depth layer (furniture + grandma) -> front layer (pergola arch, front-walls, balcony-railing)
     const masterDefs = createSvgEl('defs');
     masterSvg.appendChild(masterDefs);
 
@@ -1038,34 +1265,39 @@
     skyLayer.append(skyDayGroup, skySunsetGroup, skyNightGroup);
     masterSvg.appendChild(skyLayer);
 
+    // Layer order inside #house-layer:
+    // structure -> carpets -> back-partitions (bedroom only, BELOW grandma) -> depth-layer (furniture + grandma)
+    // -> front-partitions (bathroom, hallway, living, kitchen walls: ALWAYS ABOVE grandma & bathtub) -> front-layer
     const houseLayer = createSvgEl('g', { id: 'house-layer' });
     const structureLayer = createSvgEl('g', { id: 'structure-layer' });
     const carpetsLayer = createSvgEl('g', { id: 'carpets-layer' });
-    const partitionsLayer = createSvgEl('g', { id: 'partitions-layer' });
+    const rawPartitionsLayer = createSvgEl('g', { id: 'partitions-raw-layer' });
+    const backPartitionsLayer = createSvgEl('g', { id: 'back-partitions-layer' });
     const depthLayer = createSvgEl('g', { id: 'depth-layer' });
+    const frontPartitionsLayer = createSvgEl('g', { id: 'front-partitions-layer' });
     const frontLayer = createSvgEl('g', { id: 'front-layer' });
 
     importVisualChildren(assets.structure.svgRoot, masterDefs, structureLayer);
-    importVisualChildren(assets.partitions.svgRoot, masterDefs, partitionsLayer);
+    importVisualChildren(assets.partitions.svgRoot, masterDefs, rawPartitionsLayer);
 
     // Delete white room title bubbles (#room-labels / .room-pill)
     structureLayer.querySelectorAll('#room-labels, .room-pill').forEach((el) => el.remove());
 
-    // Keep partition blocks exclusively in #partitions-layer (above #carpets-layer)
+    // Keep partition blocks exclusively from partitions SVG unless structure had the only ones
     const hasPartitionsInLayer = Boolean(
-      partitionsLayer.querySelector('#partition-walls, .partition-block, #interior-partitions')
+      rawPartitionsLayer.querySelector('#partition-walls, .partition-block, #interior-partitions')
     );
     structureLayer.querySelectorAll('.partition-block').forEach((block) => {
       if (hasPartitionsInLayer) {
         block.remove();
       } else {
-        partitionsLayer.appendChild(block);
+        rawPartitionsLayer.appendChild(block);
       }
     });
 
-    // Move balcony pergola arch (brown entrance), front-walls, and balcony-railing above depthLayer
+    // Move balcony pergola arch, front-walls, and balcony-railing to frontLayer
     for (const id of ['balcony-pergola-arch', 'front-walls', 'balcony-railing']) {
-      const fromPartitions = partitionsLayer.querySelector(`#${id}`);
+      const fromPartitions = rawPartitionsLayer.querySelector(`#${id}`);
       const fromStructure = structureLayer.querySelector(`#${id}`);
       const found = fromPartitions || fromStructure;
       if (found) {
@@ -1073,13 +1305,11 @@
       }
     }
 
-    // Move carpets/rugs/doormats into carpetsLayer (below partitions & furniture)
-    // and remaining furniture <g id> into depthLayer (removing any bedroom plant)
     extractFurnitureGroups(assets.furniture1.svgRoot, masterDefs, depthLayer, carpetsLayer, 'furniture1');
     extractFurnitureGroups(assets.furniture2.svgRoot, masterDefs, depthLayer, carpetsLayer, 'furniture2');
     extractFurnitureGroups(assets.furniture3.svgRoot, masterDefs, depthLayer, carpetsLayer, 'furniture3');
 
-    // 3. Pre-load all 5 character pose SVGs inside #grandma-character (zero flicker)
+    // Pre-load all 5 character pose SVGs inside #grandma-character (zero flicker)
     const characterGroup = createSvgEl('g', { id: 'grandma-character' });
     const characterPoseWrap = createSvgEl('g', { id: 'grandma-pose-wrap' });
     const characterBreatheWrap = createSvgEl('g', { id: 'grandma-breathe-wrap', class: 'breathe-target' });
@@ -1120,34 +1350,71 @@
       poseNodes[poseName] = { node: g, viewBox: asset.viewBox };
     }
 
-    houseLayer.append(structureLayer, carpetsLayer, partitionsLayer, depthLayer, frontLayer);
-    masterSvg.appendChild(houseLayer);
+    houseLayer.append(
+      structureLayer,
+      carpetsLayer,
+      rawPartitionsLayer,
+      backPartitionsLayer,
+      depthLayer,
+      frontPartitionsLayer,
+      frontLayer
+    );
+    // Scaled wrapper for everything that belongs to the house (house, night glows, debug overlay)
+    const sceneWrap = createSvgEl('g', {
+      id: 'scene-wrap',
+      transform: `translate(${HOUSE_OFFSET.x.toFixed(2)}, ${HOUSE_OFFSET.y.toFixed(2)}) scale(${HOUSE_SCALE})`,
+    });
+    masterSvg.appendChild(sceneWrap);
+    sceneWrap.appendChild(houseLayer);
 
-    // Night radial glow layer sits above #house-layer so mix-blend-mode: screen shines brightly
-    masterSvg.appendChild(buildNightGlowLayer(masterDefs));
+    // Now that #house-layer is in the DOM, split partitions accurately via getBBox()
+    splitPartitionsIntoBackAndFront(rawPartitionsLayer, backPartitionsLayer, frontPartitionsLayer, houseLayer);
+    rawPartitionsLayer.remove();
 
-    // Debug layer sits on top of everything
+    sceneWrap.appendChild(buildNightGlowLayer(masterDefs));
+
     const debugLayer = buildDebugLayer();
-    masterSvg.appendChild(debugLayer);
+    sceneWrap.appendChild(debugLayer);
 
-    // 4. Cache furniture bboxes once after loading
-    const furnitureSortYCache = new Map();
+    // Cache furniture depth data once after loading: screen box, sort Y and matched footprint.
+    // Furniture is put into a fixed back-to-front order; only the character moves within it.
+    const furnitureItems = [];
     for (const child of Array.from(depthLayer.children)) {
       if (child === characterGroup) continue;
-      furnitureSortYCache.set(child, computeElementSortY(child, depthLayer));
+      const box = getBoxInLayer(child, depthLayer);
+      furnitureItems.push({
+        el: child,
+        box,
+        sortY: box ? box.maxY : computeElementSortY(child, depthLayer),
+        footprint: matchFootprintForElement(child, box),
+      });
     }
+    furnitureItems.sort((a, b) => a.sortY - b.sortY);
+    for (const item of furnitureItems) depthLayer.appendChild(item.el);
+    depthLayer.appendChild(characterGroup);
+    console.log(
+      '[Depth] Furniture ↔ footprint links:',
+      furnitureItems.map((i) => `${i.el.id || '(no id)'} → ${i.footprint ? i.footprint.id : 'screen-Y'}`)
+    );
 
-    const sofaGroup = findFurnitureGroup(depthLayer, 'sofa');
-    const bedGroup = findFurnitureGroup(depthLayer, 'bed');
+    const findItemFor = (footprintId) => furnitureItems.find((i) => i.footprint && i.footprint.id === footprintId) || null;
+    const sofaItem = findItemFor('sofa');
+    const bedItem = findItemFor('bed');
 
-    // 5. Game State
+    // Character on-screen size (for overlap tests during depth sorting)
+    const standingVb = assets.grandmaStanding.viewBox;
+    const CHAR_HEIGHT_PX = CHAR_WIDTH_PX * (standingVb.h / standingVb.w);
+
     const state = {
       x: START_POS.x,
       y: START_POS.y,
+      vx: 0,
+      vy: 0,
       facingLeft: false,
       pose: 'standing',
       walkFrameIndex: 0,
       walkTimerMs: 0,
+      walkGraceMs: 0,
       sleepingTarget: null, // null | 'sofa' | 'bed'
       preSleepPos: { x: START_POS.x, y: START_POS.y },
       activeZone: null, // null | 'sofa' | 'bed'
@@ -1155,7 +1422,6 @@
       skyIndex: 0,
       skyElapsedMs: 0,
       paused: false,
-      depthDirty: true,
     };
 
     const keysDown = new Set();
@@ -1200,11 +1466,75 @@
       }
       characterGroup.classList.toggle('is-sleeping', normalized === 'sleeping');
       applyPoseTransform(normalized);
-      state.depthDirty = true;
     }
 
+    // ======================================================================
+    // RIGHT SIDE PANEL (Alerts & Tasks) — empty for now, ready for entries
+    // ======================================================================
+
+    const sidePanel = document.getElementById('side-panel');
+    const panelLists = {
+      alerts: {
+        list: document.getElementById('alerts-list'),
+        count: document.getElementById('alerts-count'),
+      },
+      tasks: {
+        list: document.getElementById('tasks-list'),
+        count: document.getElementById('tasks-count'),
+      },
+    };
+
+    function refreshPanelCount(section) {
+      const entry = panelLists[section];
+      if (!entry || !entry.count) return;
+      const n = entry.list.querySelectorAll('.panel-item:not(.is-leaving)').length;
+      if (entry.count.textContent !== String(n)) {
+        entry.count.textContent = String(n);
+        entry.count.classList.remove('bump');
+        void entry.count.offsetWidth; // restart bump animation
+        entry.count.classList.add('bump');
+      }
+    }
+
+    function addPanelItem(section, text) {
+      const entry = panelLists[section];
+      if (!entry || !entry.list) return null;
+      const li = document.createElement('li');
+      li.className = 'panel-item';
+      li.textContent = text;
+      entry.list.appendChild(li);
+      refreshPanelCount(section);
+      return li;
+    }
+
+    function removePanelItem(section, li) {
+      if (!li || !li.parentNode) return;
+      li.classList.add('is-leaving');
+      refreshPanelCount(section);
+      li.addEventListener('animationend', () => li.remove(), { once: true });
+    }
+
+    function clearPanelSection(section) {
+      const entry = panelLists[section];
+      if (!entry || !entry.list) return;
+      entry.list.querySelectorAll('.panel-item').forEach((li) => removePanelItem(section, li));
+    }
+
+    function showSidePanel() {
+      if (sidePanel) sidePanel.classList.add('is-visible');
+    }
+
+    const panelApi = {
+      addAlert: (text) => addPanelItem('alerts', text),
+      addTask: (text) => addPanelItem('tasks', text),
+      removeAlert: (li) => removePanelItem('alerts', li),
+      removeTask: (li) => removePanelItem('tasks', li),
+      clearAlerts: () => clearPanelSection('alerts'),
+      clearTasks: () => clearPanelSection('tasks'),
+    };
+
     window.setPose = setPose;
-    window.GrandmaGame = { setPose, state, COLLISION };
+    window.GrandmaGame = { setPose, state, COLLISION, panel: panelApi };
 
     function renderCharacterPosition() {
       let drawX = state.x;
@@ -1225,35 +1555,80 @@
       return screen;
     }
 
+    // Bathroom special rules on top of the geometric relation:
+    // - Bathtub: character is only ever behind it in the LEFT corner (x < tub.x1, y < tub.y2).
+    // - Sink: character is only ever behind it in the RIGHT corner (x > sink.x2, y < sink.y2);
+    //   everywhere else in the bathroom she is always in front of the sink.
+    function relationForItem(item, px, py, charScreenY) {
+      const f = item.footprint;
+      if (!f) {
+        return charScreenY >= item.sortY ? 1 : -1;
+      }
+      if (f.id === 'sink') {
+        const inRightCorner = px >= f.x2 - 0.02 && py <= f.y2 + 0.05;
+        return inRightCorner ? -1 : 1;
+      }
+      if (f.id === 'bathtub') {
+        const inLeftCorner = px <= f.x1 + 0.02 && py <= f.y2 + 0.05;
+        return inLeftCorner ? -1 : 1;
+      }
+      return relationToFootprint(px, py, f);
+    }
+
+    let lastCharIndex = -1;
+
+    function placeCharacterAt(index) {
+      if (index === lastCharIndex && characterGroup.parentNode === depthLayer) return;
+      const before = furnitureItems[index] ? furnitureItems[index].el : null;
+      if (characterGroup.nextSibling !== before || characterGroup.parentNode !== depthLayer) {
+        depthLayer.insertBefore(characterGroup, before);
+      }
+      lastCharIndex = index;
+    }
+
     function sortDepthLayer(charScreenY) {
-      let charSortY = charScreenY;
+      const n = furnitureItems.length;
+
       if (state.sleepingTarget) {
-        const targetGroup = state.sleepingTarget === 'sofa' ? sofaGroup : bedGroup;
-        if (targetGroup && furnitureSortYCache.has(targetGroup)) {
-          charSortY = furnitureSortYCache.get(targetGroup) + 0.5;
+        const target = state.sleepingTarget === 'sofa' ? sofaItem : bedItem;
+        placeCharacterAt(target ? furnitureItems.indexOf(target) + 1 : n);
+        return;
+      }
+
+      const px = state.x;
+      const py = state.y;
+      const feet = gridToScreen(px, py);
+      const cMinX = feet.x - CHAR_WIDTH_PX * 0.42;
+      const cMaxX = feet.x + CHAR_WIDTH_PX * 0.42;
+      const cMinY = feet.y - CHAR_HEIGHT_PX;
+      const cMaxY = feet.y + 4;
+
+      // Only furniture that visually overlaps the character constrains her slot:
+      // lo = after every overlapping item she's in front of, hi = before every one she's behind.
+      let lo = 0;
+      let hi = n;
+      for (let i = 0; i < n; i++) {
+        const item = furnitureItems[i];
+        const b = item.box;
+        if (!b) continue;
+        const overlaps = b.maxX > cMinX && b.minX < cMaxX && b.maxY > cMinY && b.minY < cMaxY;
+        if (!overlaps) continue;
+        if (relationForItem(item, px, py, charScreenY) > 0) {
+          lo = Math.max(lo, i + 1);
+        } else {
+          hi = Math.min(hi, i);
         }
       }
 
-      const children = Array.from(depthLayer.children);
-      const sorted = children.slice().sort((a, b) => {
-        const ya = a === characterGroup ? charSortY : (furnitureSortYCache.get(a) ?? 0);
-        const yb = b === characterGroup ? charSortY : (furnitureSortYCache.get(b) ?? 0);
-        return ya - yb;
-      });
-
-      let changed = false;
-      for (let i = 0; i < sorted.length; i++) {
-        if (sorted[i] !== children[i]) {
-          changed = true;
-          break;
-        }
+      // Default slot from plain screen depth, clamped into the allowed range
+      let k = 0;
+      while (k < n && furnitureItems[k].sortY <= charScreenY) k++;
+      if (lo > hi) {
+        k = lo; // Being in front of nearby furniture wins (prevents "walking over" it)
+      } else {
+        k = clamp(k, lo, hi);
       }
-      if (changed) {
-        for (const el of sorted) {
-          depthLayer.appendChild(el);
-        }
-      }
-      state.depthDirty = false;
+      placeCharacterAt(k);
     }
 
     // ======================================================================
@@ -1261,6 +1636,26 @@
     // ======================================================================
 
     const interactiveFootprints = COLLISION.footprints.filter((f) => f.interactive);
+
+    // Compact "Space · Sleep" popup (inline !important so it overrides the stylesheet)
+    const compactPromptStyles = {
+      'font-size': '10px',
+      'line-height': '1.2',
+      padding: '2px 7px',
+      'border-radius': '7px',
+      'border-width': '1px',
+      'min-width': '0',
+      'min-height': '0',
+      width: 'auto',
+      height: 'auto',
+      'letter-spacing': '0.02em',
+      'font-weight': '700',
+      'white-space': 'nowrap',
+      'box-shadow': '0 1px 4px rgba(0, 0, 0, 0.25)',
+    };
+    for (const [prop, val] of Object.entries(compactPromptStyles)) {
+      floatingPrompt.style.setProperty(prop, val, 'important');
+    }
 
     function detectInteractionZone(x, y) {
       for (const f of interactiveFootprints) {
@@ -1288,13 +1683,13 @@
       }
 
       const spot = SLEEP_SPOTS[target];
-      const screen = gridToScreen(spot.x, spot.y);
-      const yOffsetPx = target === 'sofa' ? 62 : 52;
+      const screen = houseToStage(gridToScreen(spot.x, spot.y));
+      const yOffsetPx = (target === 'sofa' ? 40 : 34) * HOUSE_SCALE;
 
       floatingPrompt.style.left = `${(screen.x / SCENE_WIDTH) * 100}%`;
       floatingPrompt.style.top = `${((screen.y - yOffsetPx) / SCENE_HEIGHT) * 100}%`;
 
-      const desiredText = state.sleepingTarget ? '⎵ Space · Wake up' : '⎵ Space · Sleep';
+      const desiredText = state.sleepingTarget ? 'Space · Wake' : 'Space · Sleep';
       if (floatingPrompt.textContent !== desiredText) {
         floatingPrompt.textContent = desiredText;
       }
@@ -1303,11 +1698,13 @@
       }
 
       touchActionBtn.disabled = false;
-      touchActionBtn.textContent = state.sleepingTarget ? 'Wake up' : 'Sleep';
+      touchActionBtn.textContent = state.sleepingTarget ? 'Wake' : 'Sleep';
     }
 
     function startSleeping(target) {
       state.preSleepPos = { x: state.x, y: state.y };
+      state.vx = 0;
+      state.vy = 0;
       state.sleepingTarget = target;
       setPose('sleeping');
       const screen = renderCharacterPosition();
@@ -1321,6 +1718,8 @@
       const freeSpot = findNearestFreeSpotOutside(target, state.preSleepPos.x, state.preSleepPos.y);
       state.x = freeSpot.x;
       state.y = freeSpot.y;
+      state.vx = 0;
+      state.vy = 0;
       state.sleepingTarget = null;
       setPose('standing');
       state.activeZone = detectInteractionZone(state.x, state.y);
@@ -1441,45 +1840,34 @@
       btn.addEventListener('lostpointercapture', () => setActive(false));
     });
 
+    // Converts arrow input (screen directions) into a grid-space velocity (tiles / second)
+    // so the character moves at a consistent ON-SCREEN speed in every direction.
     function getMovementInputVector() {
       const up = keysDown.has('ArrowUp') || touchDirs.up;
       const down = keysDown.has('ArrowDown') || touchDirs.down;
       const left = keysDown.has('ArrowLeft') || touchDirs.left;
       const right = keysDown.has('ArrowRight') || touchDirs.right;
 
-      let gx = 0;
-      let gy = 0;
-      if (up) {
-        gx -= 1;
-        gy -= 1;
-      }
-      if (down) {
-        gx += 1;
-        gy += 1;
-      }
-      if (right) {
-        gx += 1;
-        gy -= 1;
-      }
-      if (left) {
-        gx -= 1;
-        gy += 1;
+      const sx = (right ? 1 : 0) - (left ? 1 : 0);
+      const sy = (down ? 1 : 0) - (up ? 1 : 0);
+      if (sx === 0 && sy === 0) {
+        return { gx: 0, gy: 0, movingLeftOnScreen: null };
       }
 
-      const len = Math.hypot(gx, gy);
-      if (len === 0) return { gx: 0, gy: 0, movingLeftOnScreen: null };
+      const len = Math.hypot(sx, sy);
+      const vxPx = (sx / len) * SCREEN_SPEED_PX;
+      const vyPx = (sy / len) * SCREEN_SPEED_PX * VERTICAL_SCREEN_FACTOR;
 
-      const screenDx = (gx - gy) * 40;
-      let movingLeftOnScreen = null;
-      if (Math.abs(screenDx) > 0.01) {
-        movingLeftOnScreen = screenDx < 0;
-      }
-
+      // Inverse of gridToScreen: screenX = (gx - gy) * 40, screenY = (gx + gy) * 20
       return {
-        gx: gx / len,
-        gy: gy / len,
-        movingLeftOnScreen,
+        gx: (vxPx / 40 + vyPx / 20) / 2,
+        gy: (vyPx / 20 - vxPx / 40) / 2,
+        movingLeftOnScreen: sx !== 0 ? sx < 0 : null,
       };
+    }
+
+    function gridVelocityToScreenSpeed(vx, vy) {
+      return Math.hypot((vx - vy) * 40, (vx + vy) * 20);
     }
 
     // ======================================================================
@@ -1511,42 +1899,79 @@
           const input = getMovementInputVector();
           const isTryingToMove = input.gx !== 0 || input.gy !== 0;
 
-          if (isTryingToMove) {
-            if (input.movingLeftOnScreen !== null && input.movingLeftOnScreen !== state.facingLeft) {
-              state.facingLeft = input.movingLeftOnScreen;
-              applyPoseTransform(state.pose);
+          if (isTryingToMove && input.movingLeftOnScreen !== null && input.movingLeftOnScreen !== state.facingLeft) {
+            state.facingLeft = input.movingLeftOnScreen;
+            applyPoseTransform(state.pose);
+          }
+
+          // Frame-rate independent exponential smoothing toward the target velocity
+          const rate = isTryingToMove ? ACCEL_RATE : DECEL_RATE;
+          const blend = 1 - Math.exp(-rate * dtSec);
+          state.vx += (input.gx - state.vx) * blend;
+          state.vy += (input.gy - state.vy) * blend;
+
+          if (!isTryingToMove && gridVelocityToScreenSpeed(state.vx, state.vy) < 4) {
+            state.vx = 0;
+            state.vy = 0;
+          }
+
+          const stepDx = state.vx * dtSec;
+          const stepDy = state.vy * dtSec;
+          const prevX = state.x;
+          const prevY = state.y;
+
+          if (Math.hypot(stepDx, stepDy) > 1e-6) {
+            const next = moveWithSubsteps(state.x, state.y, stepDx, stepDy);
+            state.x = next.x;
+            state.y = next.y;
+          }
+
+          const realVx = dtSec > 0 ? (state.x - prevX) / dtSec : 0;
+          const realVy = dtSec > 0 ? (state.y - prevY) / dtSec : 0;
+
+          // When blocked/sliding, keep only the velocity that actually happened so no
+          // "stored" momentum pushes into walls and direction changes feel instant.
+          if (Math.hypot(stepDx, stepDy) > 1e-6) {
+            const intended = Math.hypot(state.vx, state.vy);
+            const actual = Math.hypot(realVx, realVy);
+            if (actual < intended * 0.98) {
+              state.vx = realVx;
+              state.vy = realVy;
             }
+          }
 
-            const nextX = state.x + input.gx * SPEED * dtSec;
-            const nextY = state.y + input.gy * SPEED * dtSec;
-            const resolved = resolveCircleCollisions(nextX, nextY);
+          const movedDist = Math.hypot(state.x - prevX, state.y - prevY);
+          const screenSpeed = gridVelocityToScreenSpeed(realVx, realVy);
 
-            const movedDist = Math.hypot(resolved.x - state.x, resolved.y - state.y);
-            state.x = resolved.x;
-            state.y = resolved.y;
+          if (movedDist > 1e-5) {
+            const screen = renderCharacterPosition();
+            sortDepthLayer(screen.y);
+          }
 
-            if (movedDist > 1e-5) {
-              const screen = renderCharacterPosition();
-              sortDepthLayer(screen.y);
-            }
-
-            state.walkTimerMs += dtMs;
-            if (state.walkTimerMs >= WALK_FRAME_MS || (state.pose !== 'walk-1' && state.pose !== 'walk-2')) {
-              if (state.walkTimerMs >= WALK_FRAME_MS) {
-                state.walkTimerMs %= WALK_FRAME_MS;
-                state.walkFrameIndex = 1 - state.walkFrameIndex;
-              }
+          const isWalkPose = state.pose === 'walk-1' || state.pose === 'walk-2';
+          if (isTryingToMove && screenSpeed > 18) {
+            state.walkGraceMs = WALK_GRACE_MS;
+            const speedFactor = clamp(screenSpeed / SCREEN_SPEED_PX, 0.55, 1.25);
+            state.walkTimerMs += dtMs * speedFactor;
+            if (state.walkTimerMs >= WALK_FRAME_MS) {
+              state.walkTimerMs %= WALK_FRAME_MS;
+              state.walkFrameIndex = 1 - state.walkFrameIndex;
+              setPose(state.walkFrameIndex === 0 ? 'walk-1' : 'walk-2');
+            } else if (!isWalkPose) {
               setPose(state.walkFrameIndex === 0 ? 'walk-1' : 'walk-2');
             }
-
-            const newZone = detectInteractionZone(state.x, state.y);
-            if (newZone !== state.activeZone) {
-              state.activeZone = newZone;
-              updatePromptUI();
+          } else if (isWalkPose) {
+            state.walkGraceMs -= dtMs;
+            if (state.walkGraceMs <= 0) {
+              state.walkTimerMs = 0;
+              setPose('standing');
             }
-          } else if (state.pose === 'walk-1' || state.pose === 'walk-2') {
-            state.walkTimerMs = 0;
-            setPose('standing');
+          }
+
+          const newZone = detectInteractionZone(state.x, state.y);
+          if (newZone !== state.activeZone) {
+            state.activeZone = newZone;
+            updatePromptUI();
           }
         }
       }
@@ -1564,6 +1989,7 @@
     function dismissLoadingScreen() {
       loadingScreen.classList.add('fade-out');
       setTimeout(() => loadingScreen.classList.add('hidden'), 420);
+      setTimeout(showSidePanel, 260); // Panel springs in as the loading screen fades
       if (failedAssets.length > 0) {
         placeholderToast.classList.remove('hidden');
       }

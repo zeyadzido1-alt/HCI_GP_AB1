@@ -63,6 +63,31 @@
         </div>
       </aside>
 
+      <!-- Right Side Panel: Alerts & Tasks (slides in after loading) -->
+      <aside id="side-panel" class="side-panel" aria-label="Alerts and Tasks">
+        <section class="panel-section panel-alerts" aria-labelledby="alerts-heading">
+          <header class="panel-section-header">
+            <span class="panel-section-icon" aria-hidden="true">🔔</span>
+            <h2 id="alerts-heading" class="panel-section-title">Alerts</h2>
+            <span id="alerts-count" class="panel-count" aria-label="Alert count">0</span>
+          </header>
+          <ul id="alerts-list" class="panel-list" aria-live="polite"></ul>
+          <p class="panel-empty">No alerts</p>
+        </section>
+
+        <div class="panel-divider" aria-hidden="true"></div>
+
+        <section class="panel-section panel-tasks" aria-labelledby="tasks-heading">
+          <header class="panel-section-header">
+            <span class="panel-section-icon" aria-hidden="true">📋</span>
+            <h2 id="tasks-heading" class="panel-section-title">Tasks</h2>
+            <span id="tasks-count" class="panel-count" aria-label="Task count">0</span>
+          </header>
+          <ul id="tasks-list" class="panel-list" aria-live="polite"></ul>
+          <p class="panel-empty">No tasks</p>
+        </section>
+      </aside>
+
       <!-- Debug Status Readout (toggle with D key) -->
       <div id="debug-hud" class="debug-hud hidden">
         DEBUG MODE (D) · <span id="debug-coords">x: 2.00, y: 5.50</span>
