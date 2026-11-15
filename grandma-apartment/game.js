@@ -40,8 +40,14 @@
   const MAX_COLLISION_SUBSTEP = 0.04; // Prevents tunneling through partitions
   const WALK_FRAME_MS = 175; // ms per walk frame alternation
   const WALK_GRACE_MS = 110; // Keeps walk pose briefly when sliding along walls (prevents flicker)
-  const SKY_INTERVAL_MS = 40000; // 40 seconds for Day & Sunset phases
-  const NIGHT_SPEED_MULTIPLIER = 1.75; // Night passes 1.75x faster (~22.86s)
+  const SKY_INTERVAL_MS = 20000; // Every sky (Day, Sunset, Night) lasts 20 seconds
+  const TOTAL_DAYS = 3; // One session = 3 full day/sunset/night cycles (3 min total)
+
+  // Session storage (browser localStorage). Sessions are kept so players can review them.
+  const STORAGE_KEY = 'grandma-apartment.sessions.v1';
+  const LAST_PLAYER_KEY = 'grandma-apartment.last-player';
+  const MAX_STORED_SESSIONS = 50;
+  const AUTOSAVE_INTERVAL_MS = 3000;
 
   const CHAR_SCALE = 1.5; // 1.5x character size multiplier
   const CHAR_WIDTH_PX = 60 * CHAR_SCALE; // 90px standing/walking/fallen width
@@ -1207,16 +1213,75 @@
   // ========================================================================
 
   const SKY_PHASES = [
-    { id: 'day', label: 'Day', icon: '☀️', className: 'time-day', durationMs: SKY_INTERVAL_MS },
+    { id: 'day', label: 'Daytime', icon: '☀️', className: 'time-day', durationMs: SKY_INTERVAL_MS },
     { id: 'sunset', label: 'Sunset', icon: '🌇', className: 'time-sunset', durationMs: SKY_INTERVAL_MS },
-    {
-      id: 'night',
-      label: 'Night',
-      icon: '🌙',
-      className: 'time-night',
-      durationMs: Math.round(SKY_INTERVAL_MS / NIGHT_SPEED_MULTIPLIER),
-    },
+    { id: 'night', label: 'Night', icon: '🌙', className: 'time-night', durationMs: SKY_INTERVAL_MS },
   ];
+
+  // ========================================================================
+  // 10b. SESSION STORAGE HELPERS (localStorage, fail-safe)
+  // ========================================================================
+
+  function loadSessions() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveSessions(arr) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(-MAX_STORED_SESSIONS)));
+      return true;
+    } catch (err) {
+      console.warn('[Session] Could not save to localStorage:', err);
+      return false;
+    }
+  }
+
+  function readLastPlayer() {
+    try {
+      return localStorage.getItem(LAST_PLAYER_KEY) || '';
+    } catch {
+      return '';
+    }
+  }
+
+  function writeLastPlayer(name) {
+    try {
+      localStorage.setItem(LAST_PLAYER_KEY, name);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function formatDuration(ms) {
+    const totalSec = Math.round((ms || 0) / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return m > 0 ? `${m}m ${String(s).padStart(2, '0')}s` : `${s}s`;
+  }
+
+  function formatClock(ms) {
+    const totalSec = Math.floor((ms || 0) / 1000);
+    return `${String(Math.floor(totalSec / 60)).padStart(2, '0')}:${String(totalSec % 60).padStart(2, '0')}`;
+  }
+
+  // Room lookup in grid space (matches the apartment layout used by the collision map)
+  function roomAt(x, y) {
+    if (y >= 12) return 'Balcony';
+    if (y < 4.5 && x < 6) return 'Bathroom';
+    if (y >= 4.5 && y < 6.5 && x < 7) return 'Hallway';
+    if (x >= 6 && y < 6.5) return 'Kitchen';
+    if (x >= 6 && x < 7.25 && y < 8.7) return 'Hallway';
+    if (x < 6.5) return 'Living Room';
+    return 'Bedroom';
+  }
+
+  const SLEEP_ROOM = { sofa: 'Living Room', bed: 'Bedroom' };
 
   async function initGame() {
     const loadingScreen = document.getElementById('loading-screen');
@@ -1233,6 +1298,7 @@
     const skyHudIcon = document.getElementById('sky-hud-icon');
     const skyHudLabel = document.getElementById('sky-hud-label');
     const skyProgressFill = document.getElementById('sky-progress-fill');
+    const skyHudDay = document.getElementById('sky-hud-day');
     const debugHud = document.getElementById('debug-hud');
     const touchActionBtn = document.getElementById('touch-action-btn');
 
@@ -1421,7 +1487,10 @@
       debug: false,
       skyIndex: 0,
       skyElapsedMs: 0,
+      dayIndex: 0, // 0-based day of the current session
       paused: false,
+      phase: 'loading', // 'loading' | 'start' | 'playing' | 'results'
+      currentRoom: null,
     };
 
     const keysDown = new Set();
@@ -1533,8 +1602,107 @@
       clearTasks: () => clearPanelSection('tasks'),
     };
 
+    // ======================================================================
+    // SESSION LOGGING (player login, per-day stats, event log → localStorage)
+    // ======================================================================
+
+    let session = null;
+    let autosaveTimerMs = 0;
+
+    function newDayStats(dayNumber) {
+      return {
+        day: dayNumber,
+        sleepMs: 0,
+        nightSleepMs: 0,
+        sleepByMs: { sofa: 0, bed: 0 },
+        sleeps: 0,
+        distanceTiles: 0,
+        roomMs: {},
+      };
+    }
+
+    function currentDayStats() {
+      return session ? session.days[session.days.length - 1] : null;
+    }
+
+    function logEvent(type, detail) {
+      if (!session) return;
+      session.events.push({
+        t: Math.round(session.elapsedMs),
+        day: state.dayIndex + 1,
+        sky: SKY_PHASES[state.skyIndex].id,
+        type,
+        detail,
+        x: Number(state.x.toFixed(2)),
+        y: Number(state.y.toFixed(2)),
+      });
+    }
+
+    function persistSession() {
+      if (!session) return false;
+      const all = loadSessions();
+      const i = all.findIndex((s) => s.id === session.id);
+      if (i >= 0) all[i] = session;
+      else all.push(session);
+      return saveSessions(all);
+    }
+
+    function startSession(player) {
+      session = {
+        id: `s-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+        player,
+        startedAt: new Date().toISOString(),
+        endedAt: null,
+        completed: false,
+        config: { totalDays: TOTAL_DAYS, skySeconds: SKY_INTERVAL_MS / 1000 },
+        elapsedMs: 0,
+        days: [newDayStats(1)],
+        events: [],
+      };
+      state.currentRoom = roomAt(state.x, state.y);
+      logEvent('session-start', `${player} logged in and started the session`);
+      logEvent('day-start', 'Day 1 began');
+      persistSession();
+    }
+
+    function trackSessionFrame(dtMs) {
+      const day = currentDayStats();
+      if (!day) return;
+      session.elapsedMs += dtMs;
+
+      if (state.sleepingTarget) {
+        day.sleepMs += dtMs;
+        day.sleepByMs[state.sleepingTarget] += dtMs;
+        if (SKY_PHASES[state.skyIndex].id === 'night') day.nightSleepMs += dtMs;
+      }
+
+      const room = state.sleepingTarget ? SLEEP_ROOM[state.sleepingTarget] : roomAt(state.x, state.y);
+      day.roomMs[room] = (day.roomMs[room] || 0) + dtMs;
+      if (room !== state.currentRoom) {
+        state.currentRoom = room;
+        logEvent('enter-room', `Entered the ${room}`);
+      }
+
+      autosaveTimerMs += dtMs;
+      if (autosaveTimerMs >= AUTOSAVE_INTERVAL_MS) {
+        autosaveTimerMs = 0;
+        persistSession();
+      }
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (session && !session.completed) persistSession();
+    });
+
     window.setPose = setPose;
-    window.GrandmaGame = { setPose, state, COLLISION, panel: panelApi };
+    window.GrandmaGame = {
+      setPose,
+      state,
+      COLLISION,
+      panel: panelApi,
+      getSession: () => session,
+      getAllSessions: loadSessions,
+    };
 
     function renderCharacterPosition() {
       let drawX = state.x;
@@ -1706,6 +1874,9 @@
       state.vx = 0;
       state.vy = 0;
       state.sleepingTarget = target;
+      const day = currentDayStats();
+      if (day) day.sleeps += 1;
+      logEvent('sleep', `Fell asleep on the ${target}`);
       setPose('sleeping');
       const screen = renderCharacterPosition();
       sortDepthLayer(screen.y);
@@ -1715,6 +1886,7 @@
     function wakeUp() {
       if (!state.sleepingTarget) return;
       const target = state.sleepingTarget;
+      logEvent('wake', `Woke up from the ${target}`);
       const freeSpot = findNearestFreeSpotOutside(target, state.preSleepPos.x, state.preSleepPos.y);
       state.x = freeSpot.x;
       state.y = freeSpot.y;
@@ -1729,6 +1901,7 @@
     }
 
     function triggerSleepOrWake() {
+      if (state.phase !== 'playing') return;
       if (state.sleepingTarget) {
         wakeUp();
       } else if (state.activeZone) {
@@ -1756,6 +1929,7 @@
       masterSvg.classList.add(phase.className);
       skyHudIcon.textContent = phase.icon;
       skyHudLabel.textContent = phase.label;
+      if (skyHudDay) skyHudDay.textContent = `Day ${state.dayIndex + 1}/${TOTAL_DAYS}`;
     }
 
     function updateSky(dtMs) {
@@ -1763,9 +1937,28 @@
       let currentPhase = SKY_PHASES[state.skyIndex];
       while (state.skyElapsedMs >= currentPhase.durationMs) {
         state.skyElapsedMs -= currentPhase.durationMs;
-        state.skyIndex = (state.skyIndex + 1) % SKY_PHASES.length;
+        state.skyIndex += 1;
+
+        if (state.skyIndex >= SKY_PHASES.length) {
+          // A full Day → Sunset → Night cycle finished
+          if (state.dayIndex + 1 >= TOTAL_DAYS) {
+            state.skyIndex = SKY_PHASES.length - 1;
+            state.skyElapsedMs = currentPhase.durationMs;
+            skyProgressFill.style.width = '100%';
+            endSession();
+            return;
+          }
+          state.skyIndex = 0;
+          state.dayIndex += 1;
+          if (session) session.days.push(newDayStats(state.dayIndex + 1));
+          logEvent('day-start', `Day ${state.dayIndex + 1} began`);
+          panelApi.clearAlerts();
+          panelApi.addAlert(`☀️ Day ${state.dayIndex + 1} of ${TOTAL_DAYS} has started`);
+        }
+
         currentPhase = SKY_PHASES[state.skyIndex];
         applySkyPhase(state.skyIndex);
+        if (state.skyIndex !== 0) logEvent('sky', `Sky changed to ${currentPhase.label}`);
       }
       const pct = clamp((state.skyElapsedMs / currentPhase.durationMs) * 100, 0, 100);
       skyProgressFill.style.width = `${pct.toFixed(1)}%`;
@@ -1778,6 +1971,21 @@
     const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 
     window.addEventListener('keydown', (e) => {
+      // Let form fields (player name) receive normal typing
+      const tag = e.target && e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable)) {
+        return;
+      }
+
+      if (state.phase !== 'playing') {
+        if ((e.code === 'Space' || e.key === ' ') && !e.repeat && state.phase === 'loading' &&
+            !loadingScreen.classList.contains('hidden')) {
+          e.preventDefault();
+          dismissLoadingScreen();
+        }
+        return;
+      }
+
       if (ARROW_KEYS.has(e.key) || e.code === 'Space' || e.key === ' ') {
         e.preventDefault();
       }
@@ -1792,13 +2000,7 @@
       }
 
       if (e.code === 'Space' || e.key === ' ') {
-        if (!e.repeat) {
-          if (!loadingScreen.classList.contains('hidden')) {
-            dismissLoadingScreen();
-          } else {
-            triggerSleepOrWake();
-          }
-        }
+        if (!e.repeat) triggerSleepOrWake();
         return;
       }
 
@@ -1823,6 +2025,7 @@
     document.querySelectorAll('.dpad-btn').forEach((btn) => {
       const dir = btn.dataset.dir;
       const setActive = (isActive) => {
+        if (isActive && state.phase !== 'playing') return;
         if (isActive && state.sleepingTarget) {
           wakeUp();
         }
@@ -1892,10 +2095,11 @@
       const dtMs = Math.min(rawDtMs, 100);
       const dtSec = dtMs / 1000;
 
-      if (!state.paused) {
+      if (!state.paused && state.phase === 'playing') {
+        trackSessionFrame(dtMs);
         updateSky(dtMs);
 
-        if (!state.sleepingTarget) {
+        if (state.phase === 'playing' && !state.sleepingTarget) {
           const input = getMovementInputVector();
           const isTryingToMove = input.gx !== 0 || input.gy !== 0;
 
@@ -1944,6 +2148,8 @@
           const screenSpeed = gridVelocityToScreenSpeed(realVx, realVy);
 
           if (movedDist > 1e-5) {
+            const dayStats = currentDayStats();
+            if (dayStats) dayStats.distanceTiles += movedDist;
             const screen = renderCharacterPosition();
             sortDepthLayer(screen.y);
           }
@@ -1986,10 +2192,236 @@
       }
     });
 
+    // ======================================================================
+    // START SCREEN → PLAY → RESULTS FLOW
+    // ======================================================================
+
+    const startScreen = document.getElementById('start-screen');
+    const startForm = document.getElementById('start-form');
+    const playerInput = document.getElementById('player-name');
+    const playBtn = document.getElementById('play-btn');
+    const historyWrap = document.getElementById('history-wrap');
+    const historyList = document.getElementById('history-list');
+
+    const resultsScreen = document.getElementById('results-screen');
+    const resultsPlayer = document.getElementById('results-player');
+    const resultsStats = document.getElementById('results-stats');
+    const resultsDays = document.getElementById('results-days');
+    const resultsLogCount = document.getElementById('results-log-count');
+    const resultsLogList = document.getElementById('results-log-list');
+    const resultsStorage = document.getElementById('results-storage');
+    const againBtn = document.getElementById('again-btn');
+    const changePlayerBtn = document.getElementById('change-player-btn');
+    const downloadBtn = document.getElementById('download-btn');
+
+    function el(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    function renderHistory() {
+      const sessions = loadSessions().slice().reverse().slice(0, 5);
+      historyList.replaceChildren();
+      historyWrap.classList.toggle('hidden', sessions.length === 0);
+      for (const s of sessions) {
+        const totalSleep = (s.days || []).reduce((sum, d) => sum + (d.sleepMs || 0), 0);
+        const when = new Date(s.startedAt);
+        const li = el('li');
+        li.append(
+          el('span', 'h-name', s.player || 'Unknown'),
+          el(
+            'span',
+            'h-meta',
+            `${when.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} ${when.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })} · ` +
+              (s.completed ? `slept ${formatDuration(totalSleep)}` : `left on day ${(s.days || []).length}`)
+          )
+        );
+        historyList.appendChild(li);
+      }
+    }
+
+    function showStartScreen(prefillLastPlayer = true) {
+      state.phase = 'start';
+      resultsScreen.classList.add('hidden');
+      renderHistory();
+      if (prefillLastPlayer && !playerInput.value) playerInput.value = readLastPlayer();
+      playBtn.disabled = playerInput.value.trim().length === 0;
+      startScreen.classList.remove('hidden');
+      setTimeout(() => playerInput.focus(), 50);
+    }
+
+    playerInput.addEventListener('input', () => {
+      playBtn.disabled = playerInput.value.trim().length === 0;
+    });
+
+    // Puts Grandma and the sky back to the start of day 1
+    function resetWorld() {
+      keysDown.clear();
+      touchDirs.up = touchDirs.down = touchDirs.left = touchDirs.right = false;
+      document.querySelectorAll('.dpad-btn.active').forEach((b) => b.classList.remove('active'));
+      state.x = START_POS.x;
+      state.y = START_POS.y;
+      state.vx = 0;
+      state.vy = 0;
+      state.sleepingTarget = null;
+      state.activeZone = null;
+      state.walkTimerMs = 0;
+      state.walkGraceMs = 0;
+      state.facingLeft = false;
+      state.skyIndex = 0;
+      state.skyElapsedMs = 0;
+      state.dayIndex = 0;
+      autosaveTimerMs = 0;
+      applySkyPhase(0);
+      skyProgressFill.style.width = '0%';
+      setPose('standing');
+      const screen = renderCharacterPosition();
+      sortDepthLayer(screen.y);
+      updatePromptUI();
+      panelApi.clearAlerts();
+      panelApi.clearTasks();
+    }
+
+    function beginPlaying(player) {
+      writeLastPlayer(player);
+      resetWorld();
+      startSession(player);
+      startScreen.classList.add('hidden');
+      resultsScreen.classList.add('hidden');
+      showSidePanel();
+      panelApi.addAlert(`👋 Welcome, ${player}! Day 1 of ${TOTAL_DAYS}`);
+      lastTimestamp = null;
+      state.phase = 'playing';
+      if (document.activeElement) document.activeElement.blur();
+    }
+
+    startForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = playerInput.value.trim();
+      if (!name) return;
+      beginPlaying(name);
+    });
+
+    function endSession() {
+      state.phase = 'results';
+      keysDown.clear();
+      floatingPrompt.classList.add('hidden');
+      touchActionBtn.disabled = true;
+      if (session) {
+        logEvent('session-end', `${TOTAL_DAYS} days completed`);
+        session.completed = true;
+        session.endedAt = new Date().toISOString();
+        const saved = persistSession();
+        showResults(session, saved);
+      }
+    }
+
+    function statTile(value, label) {
+      const tile = el('div', 'stat-tile');
+      tile.append(el('div', 'stat-value', value), el('div', 'stat-label', label));
+      return tile;
+    }
+
+    function topRoom(roomMs) {
+      let best = '—';
+      let bestMs = -1;
+      for (const [room, ms] of Object.entries(roomMs || {})) {
+        if (ms > bestMs) {
+          best = room;
+          bestMs = ms;
+        }
+      }
+      return best;
+    }
+
+    function showResults(s, saved) {
+      const totals = { sleep: 0, night: 0, dist: 0, sleeps: 0, rooms: {} };
+      for (const d of s.days) {
+        totals.sleep += d.sleepMs;
+        totals.night += d.nightSleepMs;
+        totals.dist += d.distanceTiles;
+        totals.sleeps += d.sleeps;
+        for (const [room, ms] of Object.entries(d.roomMs)) {
+          totals.rooms[room] = (totals.rooms[room] || 0) + ms;
+        }
+      }
+
+      resultsPlayer.textContent = `${s.player} · ${new Date(s.startedAt).toLocaleString()}`;
+
+      resultsStats.replaceChildren(
+        statTile(formatDuration(totals.sleep), 'Total sleep'),
+        statTile(formatDuration(totals.night), 'Slept at night'),
+        statTile(`${totals.dist.toFixed(1)}`, 'Tiles walked'),
+        statTile(topRoom(totals.rooms), 'Favourite room')
+      );
+
+      resultsDays.replaceChildren();
+      for (const d of s.days) {
+        const tr = el('tr');
+        tr.append(
+          el('td', '', `Day ${d.day}`),
+          el('td', '', formatDuration(d.sleepMs)),
+          el('td', '', formatDuration(d.nightSleepMs)),
+          el('td', '', `${formatDuration(d.sleepByMs.sofa)} / ${formatDuration(d.sleepByMs.bed)}`),
+          el('td', '', `${d.distanceTiles.toFixed(1)} tiles`),
+          el('td', '', topRoom(d.roomMs))
+        );
+        resultsDays.appendChild(tr);
+      }
+
+      resultsLogCount.textContent = String(s.events.length);
+      resultsLogList.replaceChildren();
+      for (const ev of s.events) {
+        const li = el('li');
+        li.append(el('span', 'log-time', `${formatClock(ev.t)} · D${ev.day} ${ev.sky} `), document.createTextNode(`— ${ev.detail}`));
+        resultsLogList.appendChild(li);
+      }
+
+      const storedCount = loadSessions().length;
+      resultsStorage.textContent = saved
+        ? `Saved in this browser (localStorage) · ${storedCount} session${storedCount === 1 ? '' : 's'} stored`
+        : 'Could not save to this browser’s storage. Use “Download data” to keep a copy.';
+
+      resultsScreen.classList.remove('hidden');
+      againBtn.focus();
+    }
+
+    againBtn.addEventListener('click', () => {
+      beginPlaying(session ? session.player : readLastPlayer() || 'Player');
+    });
+
+    changePlayerBtn.addEventListener('click', () => {
+      playerInput.value = '';
+      showStartScreen(false);
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        currentSessionId: session ? session.id : null,
+        sessions: loadSessions(),
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `grandma-sessions-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+
+    let loadingDismissed = false;
+
     function dismissLoadingScreen() {
+      if (loadingDismissed) return;
+      loadingDismissed = true;
       loadingScreen.classList.add('fade-out');
       setTimeout(() => loadingScreen.classList.add('hidden'), 420);
-      setTimeout(showSidePanel, 260); // Panel springs in as the loading screen fades
+      setTimeout(() => showStartScreen(true), 260); // Start screen appears as the loading screen fades
       if (failedAssets.length > 0) {
         placeholderToast.classList.remove('hidden');
       }

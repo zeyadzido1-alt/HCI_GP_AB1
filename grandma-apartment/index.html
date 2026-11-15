@@ -31,6 +31,60 @@
     </div>
   </div>
 
+  <!-- Start Screen -->
+  <div id="start-screen" class="menu-screen hidden" role="dialog" aria-modal="true" aria-labelledby="start-title">
+    <form id="start-form" class="menu-card" autocomplete="off">
+      <div class="loading-badge">2D Isometric Apartment</div>
+      <h1 id="start-title" class="menu-title">Grandma's Apartment</h1>
+      <p class="menu-sub">Spend <strong>3 days</strong> with Grandma. Each sky (day, sunset, night) lasts <strong>20 seconds</strong>.</p>
+
+      <label class="menu-label" for="player-name">Your name</label>
+      <input id="player-name" class="menu-input" type="text" maxlength="32" placeholder="Enter a name to log in" required />
+
+      <button id="play-btn" class="menu-btn menu-btn-primary" type="submit" disabled>▶ Play</button>
+
+      <p class="menu-hint">Arrow keys to walk · Space to sleep / wake on the sofa or bed</p>
+
+      <div id="history-wrap" class="history-wrap hidden">
+        <h2 class="menu-h2">Previous sessions</h2>
+        <ul id="history-list" class="history-list"></ul>
+        <p class="storage-note">Saved in this browser (localStorage)</p>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Screen -->
+  <div id="results-screen" class="menu-screen hidden" role="dialog" aria-modal="true" aria-labelledby="results-title">
+    <div class="menu-card menu-card-wide">
+      <div class="loading-badge">Session complete</div>
+      <h1 id="results-title" class="menu-title">3 days done!</h1>
+      <p id="results-player" class="menu-sub"></p>
+
+      <div id="results-stats" class="results-stats"></div>
+
+      <div class="results-table-wrap">
+        <table class="results-table">
+          <thead>
+            <tr><th>Day</th><th>Slept</th><th>At night</th><th>Sofa / Bed</th><th>Walked</th><th>Most time in</th></tr>
+          </thead>
+          <tbody id="results-days"></tbody>
+        </table>
+      </div>
+
+      <details class="results-log">
+        <summary>Session log (<span id="results-log-count">0</span> events)</summary>
+        <ol id="results-log-list" class="results-log-list"></ol>
+      </details>
+
+      <div class="menu-actions">
+        <button id="again-btn" class="menu-btn menu-btn-primary" type="button">↻ Play again</button>
+        <button id="change-player-btn" class="menu-btn" type="button">Change player</button>
+        <button id="download-btn" class="menu-btn" type="button">⬇ Download data</button>
+      </div>
+      <p id="results-storage" class="storage-note"></p>
+    </div>
+  </div>
+
   <!-- Main Viewport -->
   <main id="viewport" class="viewport">
     <div id="game-stage" class="game-stage">
@@ -56,7 +110,8 @@
       <aside id="sky-hud" class="sky-hud" aria-label="Time of Day">
         <div class="sky-hud-row">
           <span id="sky-hud-icon" class="sky-hud-icon" aria-hidden="true">☀️</span>
-          <span id="sky-hud-label" class="sky-hud-label">Day</span>
+          <span id="sky-hud-label" class="sky-hud-label">Daytime</span>
+          <span id="sky-hud-day" class="sky-hud-day">Day 1/3</span>
         </div>
         <div class="sky-progress-track">
           <div id="sky-progress-fill" class="sky-progress-fill"></div>
