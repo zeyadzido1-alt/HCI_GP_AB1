@@ -1,40 +1,120 @@
+
 # Quiet Care — Smart-Home Monitoring Simulator
 
 **Module:** LZSCC.241 — Human-Computer Interaction  
 **Project:** #5 — Quiet Care (Modified)  
 **University:** Lancaster University Leipzig  
-**Status:** Simulation prototype development
+**Status:** Interactive prototype completed — further development in progress  
+**Last updated:** 24 November 2026  
+
+## Live Prototype
+
+**[Launch Quiet Care Simulation](https://zeyadzido1-alt.github.io/HCI_GP_AB1/)**
+
+The current prototype runs directly in a web browser without requiring additional software or physical hardware.
 
 ## Project Overview
 
 Quiet Care is a browser-based interactive smart-home simulation exploring how carers identify and respond to safety risks involving older adults living alone.
 
-Following positive lecturer feedback, our initial development will focus on the **animated home simulation**, with the monitoring dashboard planned for a later phase.
+Following positive lecturer feedback, the group prioritized the development of the animated home simulation before introducing household incidents, simulated sensors, severity-based alerts and caregiver monitoring functionality.
 
 ## Research Question
 
 How effectively can a smart-home system use severity-based alerts to help carers identify and respond to risks involving older adults living alone, while maintaining trust and minimizing intrusiveness?
 
-## Current Prototype — 16 November 2026
+## Current Prototype
 
-Our first prototype will focus on:
+The first interactive prototype was presented on 17 November 2026.
 
-- A four-room home: bedroom, bathroom, kitchen and living room.
-- An animated older resident moving between rooms.
-- A simulated daily routine, from waking up to going to sleep.
-- An initial household safety incident, if feasible.
+### Implemented Features
 
-**Goal:** Demonstrate a working home simulation at the 16 November workshop.
+- Isometric four-room apartment containing a bedroom, bathroom, kitchen and living room.
+- Interactive older resident with keyboard-controlled movement.
+- Collision detection and environmental interactions.
+- Sleeping and waking functionality.
+- Day, sunset and night cycles.
+- Simulation session tracking and results screen.
+- Browser-based deployment through GitHub Pages.
 
-## Future Development
+### Planned Features
 
-After the initial prototype, we plan to introduce:
-
+- Automated daily routine.
 - Randomized household safety incidents.
-- Simulated sensors for detecting incidents.
+- Simulated household sensors.
 - Severity-based alerts and notifications.
-- A monitoring dashboard with response options.
-- Interaction logging for user evaluation.
+- Caregiver monitoring interface and response options.
+- Automatic interaction logging and CSV export for evaluation.
+
+## Development Roadmap
+
+| Phase | Target Date | Status |
+|---|---|---|
+| Project planning and initial research | 8 November | Completed |
+| Initial interactive prototype | 17 November | Completed |
+| Automated simulation and incident development | 29 November | In progress |
+| Evaluation-ready prototype | 6 December | Planned |
+| Participant testing and results analysis | 13 December | Planned |
+| Final presentation | 15 December | Planned |
+| Internal project completion | 17 December | Planned |
+| Final report and code submission | 18 December | Planned |
+
+Development targets are subject to group agreement and prototype readiness.
+
+## Technology
+
+| Technology | Purpose |
+|---|---|
+| HTML | Application structure |
+| CSS | Interface styling and visual presentation |
+| JavaScript | Simulation logic and interactions |
+| SVG | Apartment, character and environmental graphics |
+| GitHub Pages | Live prototype deployment |
+| GitHub Issues and Projects | Task and progress management |
+| GitHub Wiki | Project documentation |
+
+All household incidents and sensors are simulated. No physical sensors or additional hardware are required.
+
+## Repository Structure
+
+    HCI_GP_AB1/
+    ├── grandma-apartment/
+    │   ├── assets/
+    │   ├── index.html
+    │   ├── style.css
+    │   ├── game.js
+    │   └── README.md
+    ├── index.html
+    └── README.md
+
+The grandma-apartment directory contains the simulation implementation. The root index.html provides access to the prototype through GitHub Pages.
+
+## Running the Prototype
+
+### Online
+
+Open the [live simulation](https://zeyadzido1-alt.github.io/HCI_GP_AB1/).
+
+### Locally
+
+Clone or download this repository and open grandma-apartment/index.html in a web browser. If required, serve the directory using a local development server.
+
+## Evaluation
+
+The project will evaluate the effectiveness and usability of smart-home alerts through participant testing.
+
+The proposed evaluation measures include:
+
+- Response accuracy.
+- Response time.
+- Alert appropriateness.
+- Trust.
+- Perceived intrusiveness.
+- Overall usability.
+
+We aim to recruit between five and ten participants.
+
+The detailed experimental conditions, evaluation methodology and data collection requirements are documented in the User Evaluation Wiki page and remain subject to revision.
 
 ## Team
 
@@ -46,25 +126,23 @@ After the initial prototype, we plan to introduce:
 | Maria | Implementation Co-Lead |
 | Patrick | Evaluation Lead |
 
-## Technology
-
-**Proposed:** HTML, CSS and JavaScript.
-
-The simulation will run in a web browser without requiring physical sensors or additional hardware.
-
-## Evaluation
-
-We plan to investigate response accuracy, response time, trust, alert appropriateness and perceived intrusiveness through user testing.
-
-The detailed evaluation methodology will be finalized during development.
-
 ## Project Documentation
 
-- [Project Wiki](../../wiki)
-- [GitHub Issues](../../issues)
-- [Project Board](../../projects)
+| Page | Description |
+|---|---|
+| [Wiki Home](https://github.com/zeyadzido1-alt/HCI_GP_AB1/wiki) | Project overview and navigation |
+| [Project Plan](https://github.com/zeyadzido1-alt/HCI_GP_AB1/wiki/Project-Plan) | Development phases and objectives |
+| [Research and Requirements](https://github.com/zeyadzido1-alt/HCI_GP_AB1/wiki/Research-and-Requirements) | Background research and system requirements |
+| [Design and Prototyping](https://github.com/zeyadzido1-alt/HCI_GP_AB1/wiki/Design-and-Prototyping) | Design decisions and prototype development |
+| [User Evaluation](https://github.com/zeyadzido1-alt/HCI_GP_AB1/wiki/User-Evaluation) | Evaluation methodology and results |
+| [Team Roles and Contributions](https://github.com/zeyadzido1-alt/HCI_GP_AB1/wiki/Team-Roles-and-Contributions) | Team responsibilities |
+| [Weekly Progress Logs](https://github.com/zeyadzido1-alt/HCI_GP_AB1/wiki/Weekly-Progress-Logs) | Weekly progress and individual contributions |
+| [Meeting Notes and Decisions](https://github.com/zeyadzido1-alt/HCI_GP_AB1/wiki/Meeting-Notes-and-Decisions) | Group decisions and milestones |
 
-The Wiki contains our project plan, team responsibilities and weekly contribution logs.
+## Project Management
+
+- [GitHub Issues](https://github.com/zeyadzido1-alt/HCI_GP_AB1/issues)
+- [Project Board](https://github.com/users/zeyadzido1-alt/projects/1)
 
 ## AI Assistance Disclosure
 
